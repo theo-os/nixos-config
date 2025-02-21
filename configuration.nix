@@ -8,9 +8,6 @@
 
 {
   nixpkgs.overlays = [
-    (import ./overlays/blender.nix { inherit inputs; })
-    (import ./overlays/servo.nix { inherit inputs; })
-    #(import ./overlays/noxlibs.nix { })
   ];
 
   nix.settings = {
@@ -35,8 +32,7 @@
   };
 
   fonts.packages = [
-    (pkgs.nerdfonts.override { fonts = [ "JetBrainsMono" ]; })
-    pkgs.jetbrains-mono
+    (pkgs.nerd-fonts.jetbrains-mono)
     pkgs.noto-fonts
     pkgs.noto-fonts-color-emoji
   ];
@@ -75,7 +71,7 @@
 
   services.printing.enable = true;
 
-  hardware.pulseaudio.enable = false;
+  services.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
@@ -136,8 +132,6 @@
     pkgs.hyperfine
     pkgs.broot
     pkgs.zellij
-    pkgs.attic-client
-    pkgs.attic-server
     pkgs.btop
     pkgs.fastfetch
     pkgs.wpa_supplicant
@@ -165,20 +159,6 @@
 
   services.kanata = {
     enable = true;
-  };
-
-  services.atticd = {
-    enable = true;
-    credentialsFile = "/etc/nixos/.env";
-    settings = {
-      listen = "[::1]:8080";
-      chunking = {
-        nar-size-threshold = 64 * 1024;
-        min-size = 16 * 1024;
-        avg-size = 64 * 1024;
-        max-size = 256 * 1024;
-      };
-    };
   };
 
   boot.binfmt.emulatedSystems = [
