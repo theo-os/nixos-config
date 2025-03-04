@@ -1,8 +1,5 @@
 {
-  inputs,
-  config,
   pkgs,
-  lib,
   ...
 }:
 
@@ -87,19 +84,22 @@
     extraGroups = [
       "networkmanager"
       "wheel"
+      "kvm"
+      "adbusers"
     ];
     shell = pkgs.nushell;
     packages = [
-      pkgs.firefox
+      pkgs.floorp
       pkgs.alacritty
       pkgs.ffmpeg-full
       pkgs.blender
       pkgs.niri
-      pkgs.fuzzel
+      pkgs.bemenu
     ];
   };
 
   environment.systemPackages = [
+    pkgs.youki
     pkgs.bat
     pkgs.nushell
     pkgs.helix
@@ -112,18 +112,17 @@
     pkgs.sd
     pkgs.fd
     pkgs.hyperfine
-    pkgs.starship
     pkgs.zoxide
     pkgs.zellij
     pkgs.btop
-    pkgs.fastfetch
     pkgs.wpa_supplicant
     pkgs.dhcpcd
     pkgs.iw
     pkgs.nixfmt-rfc-style
     pkgs.nil
-    pkgs.nix-output-monitor
     pkgs.brightnessctl
+    pkgs.pciutils
+    pkgs.usbutils
   ];
 
   zramSwap = {

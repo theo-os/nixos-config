@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/master";
+    nixpkgs.url = "github:nixos/nixpkgs/pull/387469/head";
   };
 
   outputs =
@@ -41,37 +41,45 @@
           ];
         };
 
-        iso = nixpkgs.lib.nixosSystem {
-          system = "x86_64-linux";
-          specialArgs = {
-            inherit inputs;
-          };
-          modules = [
-            ./configuration.nix
-            "${nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-base.nix"
-            "${nixpkgs}/nixos/modules/profiles/minimal.nix"
+        iso =
+          (nixpkgs.lib.genAttrs [
+            "aarch64-linux"
+            "x86_64-linux"
+          ])
             (
-              { lib, config, ... }:
-              {
-                nixpkgs.crossSystem.system = "x86_64-linux";
-                isoImage.edition = lib.mkOverride 500 "minimal";
-                boot.supportedFilesystems.zfs = lib.mkForce false;
+              system:
+              nixpkgs.lib.nixosSystem {
+                inherit system;
+                specialArgs = {
+                  inherit inputs;
+                };
+                modules = [
+                  ./configuration.nix
+                  "${nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-base.nix"
+                  "${nixpkgs}/nixos/modules/profiles/minimal.nix"
+                  (
+                    { lib, config, ... }:
+                    {
+                      nixpkgs.crossSystem.system = system;
+                      isoImage.edition = lib.mkOverride 500 "minimal";
+                      boot.supportedFilesystems.zfs = lib.mkForce false;
 
-                # Broadcom wifi
-                nixpkgs.config.allowUnfree = true;
-                boot.kernelModules = [ "wl" ];
-                boot.initrd.kernelModules = [
-                  "wl"
-                ];
-                boot.extraModulePackages = [ config.boot.kernelPackages.broadcom_sta ];
-                boot.blacklistedKernelModules = [
-                  "b43"
-                  "bcma"
+                      # Broadcom wifi
+                      nixpkgs.config.allowUnfree = true;
+                      boot.kernelModules = [ "wl" ];
+                      boot.initrd.kernelModules = [
+                        "wl"
+                      ];
+                      boot.extraModulePackages = [ config.boot.kernelPackages.broadcom_sta ];
+                      boot.blacklistedKernelModules = [
+                        "b43"
+                        "bcma"
+                      ];
+                    }
+                  )
                 ];
               }
-            )
-          ];
-        };
+            );
       };
     };
 }
