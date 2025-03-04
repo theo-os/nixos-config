@@ -81,6 +81,8 @@
     jack.enable = true;
   };
 
+  hardware.graphics.enable = true;
+
   users.users.theo = {
     isNormalUser = true;
     description = "Theo";
@@ -90,31 +92,11 @@
     ];
     shell = pkgs.nushell;
     packages = [
-      pkgs.firefox
-      pkgs.foot
-      pkgs.ffmpeg_7-full
-      pkgs.neovide
+      pkgs.servo
+      pkgs.alacritty
+      pkgs.ffmpeg-full
       pkgs.blender
-      pkgs.xdg-desktop-portal-cosmic
-      pkgs.cosmic-bg
-      pkgs.cosmic-osd
-      pkgs.cosmic-comp
-      pkgs.cosmic-randr
-      pkgs.cosmic-panel
-      pkgs.cosmic-icons
-      pkgs.cosmic-files
-      pkgs.cosmic-session
-      pkgs.cosmic-greeter
-      pkgs.cosmic-applets
-      pkgs.cosmic-settings
-      pkgs.cosmic-launcher
-      pkgs.cosmic-protocols
-      pkgs.cosmic-screenshot
-      pkgs.cosmic-applibrary
-      pkgs.cosmic-notifications
-      pkgs.cosmic-settings-daemon
-      pkgs.cosmic-workspaces-epoch
-      pkgs.pop-launcher
+      pkgs.niri
     ];
   };
 
@@ -124,6 +106,7 @@
     pkgs.helix
     pkgs.gitoxide
     pkgs.gitMinimal
+    pkgs.jujutsu
     pkgs.uutils-coreutils-noprefix
     pkgs.ripgrep
     pkgs.skim
@@ -138,11 +121,13 @@
     pkgs.dhcpcd
     pkgs.iw
     pkgs.nixfmt-rfc-style
+    pkgs.nil
+    pkgs.nix-output-monitor
   ];
 
   zramSwap = {
     enable = true;
-    memoryPercent = 200;
+    memoryPercent = 100;
     algorithm = "zstd";
   };
 
@@ -161,17 +146,7 @@
     enable = true;
   };
 
-  boot.binfmt.emulatedSystems = [
-    "wasm32-wasi"
-    "x86_64-windows"
-    "aarch64-linux"
-    "riscv64-linux"
-    "riscv32-linux"
-  ];
-
   networking.firewall.enable = false;
 
-  #environment.noXlibs = true;
-
-  system.stateVersion = "24.05";
+  system.stateVersion = "24.11";
 }

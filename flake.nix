@@ -7,14 +7,14 @@
     { nixpkgs, ... }@inputs:
     {
       nixosConfigurations = {
-        t420 = nixpkgs.lib.nixosSystem {
+        macbookair71 = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
           specialArgs = {
             inherit inputs;
           };
           modules = [
             ./configuration.nix
-            ./systems/t420.nix
+            ./systems/macbookair71.nix
           ];
         };
 
