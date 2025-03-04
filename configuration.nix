@@ -97,6 +97,7 @@
       pkgs.ffmpeg-full
       pkgs.blender
       pkgs.niri
+      pkgs.fuzzel
     ];
   };
 
@@ -113,7 +114,8 @@
     pkgs.sd
     pkgs.fd
     pkgs.hyperfine
-    pkgs.broot
+    pkgs.starship
+    pkgs.zoxide
     pkgs.zellij
     pkgs.btop
     pkgs.fastfetch
