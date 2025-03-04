@@ -18,6 +18,18 @@
           ];
         };
 
+        bigmac = nixpkgs.lib.nixosSystem {
+          system = "aarch64-linux";
+          specialArgs = {
+            inherit inputs;
+          };
+          modules = [
+            ./configuration.nix
+            ./systems/bigmac.nix
+            ./apple-silicon-support/default.nix
+          ];
+        };
+
         gigamachine = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
           specialArgs = {

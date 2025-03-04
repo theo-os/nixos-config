@@ -41,9 +41,7 @@
     "bcachefs"
     "btrfs"
   ];
-  boot.kernelPackages = lib.mkOverride 0 pkgs.linuxPackages_latest;
   boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
 
   networking.hostName = "nixos";
   networking.wireless = {
@@ -92,7 +90,7 @@
     ];
     shell = pkgs.nushell;
     packages = [
-      pkgs.servo
+      pkgs.firefox
       pkgs.alacritty
       pkgs.ffmpeg-full
       pkgs.blender
@@ -125,6 +123,7 @@
     pkgs.nixfmt-rfc-style
     pkgs.nil
     pkgs.nix-output-monitor
+    pkgs.brightnessctl
   ];
 
   zramSwap = {
