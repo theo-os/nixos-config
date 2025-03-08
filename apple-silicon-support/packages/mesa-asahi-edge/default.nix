@@ -16,15 +16,17 @@
   ];
 }).overrideAttrs
   (oldAttrs: {
-    version = "25.0.0-asahi";
+    version = "25.1.0-asahi";
     src = fetchFromGitLab {
       # tracking: https://pagure.io/fedora-asahi/mesa/commits/asahi
       domain = "gitlab.freedesktop.org";
       owner = "asahi";
       repo = "mesa";
-      rev = "asahi-20241211";
-      hash = "sha256-Ny4M/tkraVLhUK5y6Wt7md1QBtqQqPDUv+aY4MpNA6Y=";
+      rev = "asahi-20250221";
+      hash = "sha256-xt49IaylZYoH3LxYu6Uxd+qRrqQfjI6FDeAD8MLeWP8=";
     };
+
+    outputs = (builtins.filter (o: o != "cross_tools") oldAttrs.outputs);
 
     mesonFlags =
       let

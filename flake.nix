@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/pull/387469/head";
+    nixpkgs.url = "github:nixos/nixpkgs/staging-next";
   };
 
   outputs =
