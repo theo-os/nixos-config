@@ -5,6 +5,32 @@
 
 {
   nixpkgs.overlays = [
+    (final: previous: {
+      portablemc = previous.rustPlatform.buildRustPackage rec {
+        pname = "portablemc";
+        version = "5.0.0-beta.0";
+        sourceRoot = "${src.name}/rust";
+        buildAndTestSubdir = "portablemc-cli";
+
+        src = previous.fetchFromGitHub {
+          owner = "mindstorm38";
+          repo = pname;
+          rev = "c6da8a4f80e53b913bae862c0367cf370a28f2c3";
+          hash = "sha256-4FAq8kth9DILlMVEwkVZvaZuyaUBWaf9ynbQx7FLAh0=";
+        };
+
+        nativeBuildInputs = with final; [
+          pkgconf
+        ];
+
+        buildInputs = with final; [
+          libressl
+        ];
+
+        useFetchCargoVendor = true;
+        cargoHash = "sha256-B/Wi69v3liDmuYZiZlU2YaEFgw2XpiOZcC2fn8k5Nkc=";
+      };
+    })
   ];
 
   boot.kernelPackages = pkgs.linuxPackages_testing;
@@ -100,7 +126,7 @@
       niri
       fuzzel
       vesktop
-      prismlauncher
+      portablemc
     ];
   };
 
