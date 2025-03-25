@@ -1,15 +1,11 @@
 {
   config,
   lib,
-  pkgs,
-  modulesPath,
   ...
 }:
 
 {
   nix.settings.max-jobs = 1;
-
-  imports = [ "${modulesPath}/installer/scan/not-detected.nix" ];
 
   boot.initrd.availableKernelModules = [
     "xhci_pci"
@@ -21,9 +17,10 @@
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [
     "kvm-intel"
-    "Wl"
+    # TODO: https://github.com/NixOS/nixpkgs/issues/392949
+    # "wl"
   ];
-  boot.extraModulePackages = [ config.boot.kernelPackages.broadcom_sta ];
+  # boot.extraModulePackages = [ config.boot.kernelPackages.broadcom_sta ];
 
   fileSystems."/" = {
     device = "/dev/disk/by-uuid/d48361f4-f484-4a25-b76d-78f79064628b";

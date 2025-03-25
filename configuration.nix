@@ -1,8 +1,5 @@
 {
-  inputs,
-  config,
   pkgs,
-  lib,
   ...
 }:
 
@@ -41,7 +38,6 @@
     "bcachefs"
     "btrfs"
   ];
-  boot.kernelPackages = lib.mkOverride 0 pkgs.linuxPackages_latest;
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
@@ -76,7 +72,7 @@
   services.pipewire = {
     enable = true;
     alsa.enable = true;
-    alsa.support32Bit = true;
+    alsa.support32Bit = false;
     pulse.enable = true;
     jack.enable = true;
   };
@@ -90,20 +86,22 @@
       "networkmanager"
       "wheel"
     ];
-    shell = pkgs.nushell;
-    packages = [
-      pkgs.servo
-      pkgs.alacritty
-      pkgs.ffmpeg-full
-      pkgs.blender
-      pkgs.niri
-      pkgs.fuzzel
+    shell = pkgs.brush;
+    packages = with pkgs; [
+      floorp
+      servo
+      nautilus
+      alacritty
+      ffmpeg
+      blender
+      niri
+      fuzzel
     ];
   };
 
   environment.systemPackages = [
     pkgs.bat
-    pkgs.nushell
+    pkgs.brush
     pkgs.helix
     pkgs.gitoxide
     pkgs.gitMinimal
@@ -148,7 +146,7 @@
     enable = true;
   };
 
-  networking.firewall.enable = false;
+  networking.firewall.enable = true;
 
   system.stateVersion = "24.11";
 }
