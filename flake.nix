@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs";
+    nixpkgs.url = "github:tinted-software/nixpkgs/tinted-staging";
   };
 
   outputs =
@@ -15,6 +15,17 @@
           modules = [
             ./configuration.nix
             ./systems/macbookair71.nix
+          ];
+        };
+
+        macbookpro82 = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          specialArgs = {
+            inherit inputs;
+          };
+          modules = [
+            ./configuration.nix
+            ./systems/macbookpro82.nix
           ];
         };
 

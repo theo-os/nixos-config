@@ -1,11 +1,27 @@
 {
+  inputs,
   pkgs,
   ...
 }:
 
 {
+  nix.registry = {
+    nixpkgs.flake = inputs.nixpkgs;
+    nixpkgs.to = {
+      type = "path";
+      path = pkgs.path;
+      narHash = builtins.readFile (
+        pkgs.runCommandLocal "get-nixpkgs-hash" {
+          nativeBuildInputs = [ pkgs.nix ];
+        } "nix-hash --type sha256 --sri ${pkgs.path} > $out"
+      );
+    };
+  };
+
   nixpkgs.overlays = [
   ];
+
+  boot.kernelPackages = pkgs.linuxPackages_testing;
 
   nix.settings = {
     experimental-features = [
@@ -78,6 +94,8 @@
   };
 
   hardware.graphics.enable = true;
+  hardware.bluetooth.enable = true;
+  hardware.bluetooth.powerOnBoot = true;
 
   users.users.theo = {
     isNormalUser = true;
@@ -86,11 +104,10 @@
       "networkmanager"
       "wheel"
     ];
-    shell = pkgs.brush;
+    shell = pkgs.nushell;
     packages = with pkgs; [
       floorp
       servo
-      nautilus
       alacritty
       ffmpeg
       blender
@@ -99,30 +116,32 @@
     ];
   };
 
-  environment.systemPackages = [
-    pkgs.bat
-    pkgs.brush
-    pkgs.helix
-    pkgs.gitoxide
-    pkgs.gitMinimal
-    pkgs.jujutsu
-    pkgs.uutils-coreutils-noprefix
-    pkgs.ripgrep
-    pkgs.skim
-    pkgs.sd
-    pkgs.fd
-    pkgs.hyperfine
-    pkgs.starship
-    pkgs.zoxide
-    pkgs.zellij
-    pkgs.btop
-    pkgs.fastfetch
-    pkgs.wpa_supplicant
-    pkgs.dhcpcd
-    pkgs.iw
-    pkgs.nixfmt-rfc-style
-    pkgs.nil
-    pkgs.nix-output-monitor
+  environment.systemPackages = with pkgs; [
+    youki
+    gnupg
+    bat
+    nushell
+    helix
+    gitoxide
+    gitMinimal
+    jujutsu
+    uutils-coreutils-noprefix
+    ripgrep
+    skim
+    sd
+    fd
+    hyperfine
+    starship
+    zoxide
+    zellij
+    btop
+    fastfetch
+    wpa_supplicant
+    dhcpcd
+    iw
+    nixfmt-rfc-style
+    nil
+    nix-output-monitor
   ];
 
   zramSwap = {
@@ -141,6 +160,9 @@
   };
 
   services.openssh.enable = true;
+  programs.gnupg = {
+    agent.enable = true;
+  };
 
   services.kanata = {
     enable = true;
