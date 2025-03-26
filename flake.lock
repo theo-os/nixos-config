@@ -2,15 +2,16 @@
   "nodes": {
     "nixpkgs": {
       "locked": {
-        "lastModified": 1742870754,
-        "narHash": "sha256-5+GOWzvhdajfuQrjQQPhYk2SNMGl7YSy8ja+KwnnfYE=",
-        "owner": "nixos",
+        "lastModified": 1742937098,
+        "narHash": "sha256-HBo5YMNAxcjlb3kvEuW0e8Ilu94yAWGMwdx2PCrdBhI=",
+        "owner": "tinted-software",
         "repo": "nixpkgs",
-        "rev": "f56e94b17ff196d131ee266aa2c1dac1b5239d2c",
+        "rev": "552522f8e651d3e7b9551f82dce08b6ed128f3a5",
         "type": "github"
       },
       "original": {
-        "owner": "nixos",
+        "owner": "tinted-software",
+        "ref": "tinted-staging",
         "repo": "nixpkgs",
         "type": "github"
       }

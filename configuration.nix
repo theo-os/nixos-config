@@ -5,7 +5,35 @@
 
 {
   nixpkgs.overlays = [
+    (final: previous: {
+      portablemc = previous.rustPlatform.buildRustPackage rec {
+        pname = "portablemc";
+        version = "5.0.0-beta.0";
+        sourceRoot = "${src.name}/rust";
+        buildAndTestSubdir = "portablemc-cli";
+
+        src = previous.fetchFromGitHub {
+          owner = "mindstorm38";
+          repo = pname;
+          rev = "c6da8a4f80e53b913bae862c0367cf370a28f2c3";
+          hash = "sha256-4FAq8kth9DILlMVEwkVZvaZuyaUBWaf9ynbQx7FLAh0=";
+        };
+
+        nativeBuildInputs = with final; [
+          pkgconf
+        ];
+
+        buildInputs = with final; [
+          libressl
+        ];
+
+        useFetchCargoVendor = true;
+        cargoHash = "sha256-B/Wi69v3liDmuYZiZlU2YaEFgw2XpiOZcC2fn8k5Nkc=";
+      };
+    })
   ];
+
+  boot.kernelPackages = pkgs.linuxPackages_testing;
 
   nix.settings = {
     experimental-features = [
@@ -78,6 +106,8 @@
   };
 
   hardware.graphics.enable = true;
+  hardware.bluetooth.enable = true;
+  hardware.bluetooth.powerOnBoot = true;
 
   users.users.theo = {
     isNormalUser = true;
@@ -86,43 +116,46 @@
       "networkmanager"
       "wheel"
     ];
-    shell = pkgs.brush;
+    shell = pkgs.nushell;
     packages = with pkgs; [
       floorp
       servo
-      nautilus
       alacritty
       ffmpeg
       blender
       niri
       fuzzel
+      vesktop
+      portablemc
     ];
   };
 
-  environment.systemPackages = [
-    pkgs.bat
-    pkgs.brush
-    pkgs.helix
-    pkgs.gitoxide
-    pkgs.gitMinimal
-    pkgs.jujutsu
-    pkgs.uutils-coreutils-noprefix
-    pkgs.ripgrep
-    pkgs.skim
-    pkgs.sd
-    pkgs.fd
-    pkgs.hyperfine
-    pkgs.starship
-    pkgs.zoxide
-    pkgs.zellij
-    pkgs.btop
-    pkgs.fastfetch
-    pkgs.wpa_supplicant
-    pkgs.dhcpcd
-    pkgs.iw
-    pkgs.nixfmt-rfc-style
-    pkgs.nil
-    pkgs.nix-output-monitor
+  environment.systemPackages = with pkgs; [
+    youki
+    gnupg
+    bat
+    nushell
+    helix
+    gitoxide
+    gitMinimal
+    jujutsu
+    uutils-coreutils-noprefix
+    ripgrep
+    skim
+    sd
+    fd
+    hyperfine
+    starship
+    zoxide
+    zellij
+    btop
+    fastfetch
+    wpa_supplicant
+    dhcpcd
+    iw
+    nixfmt-rfc-style
+    nil
+    nix-output-monitor
   ];
 
   zramSwap = {
@@ -141,6 +174,9 @@
   };
 
   services.openssh.enable = true;
+  programs.gnupg = {
+    agent.enable = true;
+  };
 
   services.kanata = {
     enable = true;
