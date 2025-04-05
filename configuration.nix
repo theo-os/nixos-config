@@ -127,6 +127,9 @@
       fuzzel
       vesktop
       portablemc
+      (llama-cpp.override {
+        vulkanSupport = true;
+      })
     ];
   };
 
