@@ -131,6 +131,7 @@
   };
 
   environment.systemPackages = with pkgs; [
+    nix-fast-build
     youki
     gnupg
     bat

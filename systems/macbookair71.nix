@@ -17,13 +17,12 @@
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [
     "kvm-intel"
-    # TODO: https://github.com/NixOS/nixpkgs/issues/392949
-    # "wl"
+    "wl"
   ];
-  # boot.extraModulePackages = [ config.boot.kernelPackages.broadcom_sta ];
+  boot.extraModulePackages = [ config.boot.kernelPackages.broadcom_sta ];
 
   fileSystems."/" = {
-    device = "/dev/disk/by-uuid/d48361f4-f484-4a25-b76d-78f79064628b";
+    device = "/dev/disk/by-uuid/bd84243e-78e7-4874-96f5-b133f5d08111";
     fsType = "btrfs";
     options = [
       "subvol=@"
@@ -32,7 +31,7 @@
   };
 
   fileSystems."/boot" = {
-    device = "/dev/disk/by-uuid/952F-2763";
+    device = "/dev/disk/by-uuid/AFB6-0B4D";
     fsType = "vfat";
     options = [
       "fmask=0077"
@@ -41,7 +40,7 @@
   };
 
   swapDevices = [
-    { device = "/dev/disk/by-uuid/22eb2eb1-5900-44c2-9025-00994103da51"; }
+    { device = "/dev/disk/by-uuid/c8a5fe80-8789-4d9a-9ed1-9b8f9c1e2346"; }
   ];
 
   networking.useDHCP = lib.mkDefault true;
@@ -50,6 +49,8 @@
   hardware.enableRedistributableFirmware = true;
   hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
   nixpkgs.config.allowUnfree = true;
+
+  hardware.facetimehd.enable = true;
 
   boot.blacklistedKernelModules = [
     "b43"
