@@ -33,7 +33,13 @@
     })
   ];
 
-  boot.kernelPackages = pkgs.linuxPackages_testing;
+  # TODO: move to a custom module
+  #boot.kernelPackages = pkgs.linuxPackages_testing;
+
+  programs.niri.enable = true;
+  services.displayManager.sddm.enable = true;
+  services.displayManager.sddm.wayland.enable = true;
+  environment.sessionVariables.NIXOS_OZONE_WL = "1";
 
   nix.settings = {
     experimental-features = [
@@ -67,14 +73,11 @@
     "btrfs"
   ];
   boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
+  boot.loader.efi.canTouchEfiVariables = false;
 
   networking.hostName = "nixos";
-  networking.wireless = {
-    enable = true;
-    dbusControlled = false;
-    userControlled.enable = true;
-  };
+  networking.networkmanager.enable = true;
+  networking.networkmanager.wifi.powersave = false;
 
   time.timeZone = "America/Los_Angeles";
 
@@ -123,7 +126,6 @@
       alacritty
       ffmpeg
       blender
-      niri
       fuzzel
       vesktop
       portablemc

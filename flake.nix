@@ -18,6 +18,18 @@
           ];
         };
 
+        m2-macbookpro = nixpkgs.lib.nixosSystem {
+          system = "aarch64-linux";
+          specialArgs = {
+            inherit inputs;
+          };
+          modules = [
+            ./configuration.nix
+            ./systems/m2-macbookpro.nix
+            ./apple-silicon-support
+          ];
+        };
+
         macbookpro82 = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
           specialArgs = {
