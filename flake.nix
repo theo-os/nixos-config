@@ -7,6 +7,17 @@
     { nixpkgs, ... }@inputs:
     {
       nixosConfigurations = {
+        rpi4 = nixpkgs.lib.nixosSystem {
+          system = "aarch64-linux";
+          specialArgs = {
+            inherit inputs;
+          };
+          modules = [
+            ./configuration.nix
+            ./systems/rpi4.nix
+          ];
+        };
+
         macbookair71 = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
           specialArgs = {
