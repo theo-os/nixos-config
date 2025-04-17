@@ -34,7 +34,7 @@
   ];
 
   # TODO: move to a custom module
-  #boot.kernelPackages = pkgs.linuxPackages_testing;
+  boot.kernelPackages = pkgs.linuxPackages_testing;
 
   programs.niri.enable = true;
   services.displayManager.sddm.enable = true;
