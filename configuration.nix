@@ -76,8 +76,8 @@
   boot.loader.efi.canTouchEfiVariables = false;
 
   networking.hostName = "nixos";
-  networking.networkmanager.enable = true;
-  networking.networkmanager.wifi.powersave = false;
+  networking.wireless.enable = true;
+  networking.wireless.userControlled.enable = true;
 
   time.timeZone = "America/Los_Angeles";
 
