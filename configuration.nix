@@ -34,7 +34,7 @@
   ];
 
   # TODO: move to a custom module
-  boot.kernelPackages = pkgs.linuxPackages_testing;
+  boot.kernelPackages = pkgs.linuxPackages_6_14;
 
   programs.niri.enable = true;
   services.displayManager.sddm.enable = true;
@@ -122,7 +122,6 @@
     shell = pkgs.nushell;
     packages = with pkgs; [
       floorp
-      servo
       alacritty
       ffmpeg
       blender
