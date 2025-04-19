@@ -85,17 +85,16 @@
                 isoImage.edition = lib.mkOverride 500 "minimal";
                 boot.supportedFilesystems.zfs = lib.mkForce false;
 
-                # Broadcom wifi
-                # nixpkgs.config.allowUnfree = true;
-                # boot.kernelModules = [ "wl" ];
-                # boot.initrd.kernelModules = [
-                #   "wl"
-                # ];
-                # boot.extraModulePackages = [ config.boot.kernelPackages.broadcom_sta ];
-                # boot.blacklistedKernelModules = [
-                #   "b43"
-                #   "bcma"
-                # ];
+                nixpkgs.config.allowUnfree = true;
+                boot.kernelModules = [ "wl" ];
+                boot.initrd.kernelModules = [
+                  "wl"
+                ];
+                boot.extraModulePackages = [ config.boot.kernelPackages.broadcom_sta ];
+                boot.blacklistedKernelModules = [
+                  "b43"
+                  "bcma"
+                ];
               }
             )
           ];
