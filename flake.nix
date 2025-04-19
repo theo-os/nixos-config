@@ -1,10 +1,14 @@
 {
   inputs = {
     nixpkgs.url = "github:tinted-software/nixpkgs/tinted-staging";
+    disko = {
+      url = "github:nix-community/disko";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
-    { nixpkgs, ... }@inputs:
+    { nixpkgs, disko, ... }@inputs:
     {
       nixosConfigurations = {
         rpi4 = nixpkgs.lib.nixosSystem {
@@ -47,6 +51,8 @@
             inherit inputs;
           };
           modules = [
+            disko.nixosModules.disko
+            ./modules/disko.nix
             ./configuration.nix
             ./systems/macbookpro82.nix
           ];
