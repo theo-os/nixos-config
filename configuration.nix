@@ -33,12 +33,23 @@
     })
   ];
 
-  # TODO: move to a custom module
-  boot.kernelPackages = pkgs.linuxPackages_testing;
+  boot.kernelPackages = pkgs.linuxPackages_6_14;
 
-  programs.niri.enable = true;
-  services.displayManager.sddm.enable = true;
-  services.displayManager.sddm.wayland.enable = true;
+  programs.adb.enable = true;
+
+  programs.hyprland.enable = true;
+  programs.hyprland.withUWSM = true;
+  environment.etc."hyprland/plugins.conf" = with pkgs; {
+    mode = "0444";
+    text = ''plugin = ${hyprlandPlugins.hyprwinwrap}/lib/libhyprwinwrap.so
+      plugin = ${hyprlandPlugins.hyprgrass}/lib/libhyprgrass.so
+      plugin = ${hyprlandPlugins.hyprtrails}/lib/libhyprtrails.so
+      plugin = ${hyprlandPlugins.hyprsplit}/lib/libhyprsplit.so
+      plugin = ${hyprlandPlugins.hyprspace}/lib/libhyprspace.so
+      plugin = ${hyprlandPlugins.hyprscroller}/lib/libhyprscroller.so
+    '';
+  };
+
   environment.sessionVariables.NIXOS_OZONE_WL = "1";
 
   nix.settings = {
@@ -118,17 +129,18 @@
     extraGroups = [
       "networkmanager"
       "wheel"
+      "adbusers"
     ];
     shell = pkgs.nushell;
     packages = with pkgs; [
       floorp
-      servo
       alacritty
       ffmpeg
       blender
       fuzzel
       vesktop
       portablemc
+      bemenu
       (llama-cpp.override {
         vulkanSupport = true;
       })
