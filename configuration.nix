@@ -1,5 +1,6 @@
 {
   pkgs,
+  lib,
   ...
 }:
 
@@ -34,7 +35,7 @@
   ];
 
   # TODO: move to a custom module
-  boot.kernelPackages = pkgs.linuxPackages_testing;
+  # boot.kernelPackages = pkgs.linuxPackages_testing;
 
   programs.niri.enable = true;
   services.displayManager.sddm.enable = true;
@@ -190,5 +191,5 @@
 
   networking.firewall.enable = true;
 
-  system.stateVersion = "24.11";
+  system.stateVersion = lib.mkDefault lib.trivial.release;
 }
