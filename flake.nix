@@ -1,8 +1,8 @@
 {
   inputs = {
-    nixpkgs.url = "github:tinted-software/nixpkgs/tinted-staging";
+    nixpkgs.url = "github:nixos/nixpkgs";
     apple-silicon.url = "github:tpwrules/nixos-apple-silicon";
-    apple-silicon.inputs.nixpkgs.follows = "/nixpkgs";
+    apple-silicon.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs =
@@ -151,18 +151,6 @@
                 nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
                 isoImage.edition = lib.mkOverride 500 "minimal";
                 boot.supportedFilesystems.zfs = lib.mkForce false;
-
-                # Broadcom wifi
-                # nixpkgs.config.allowUnfree = true;
-                # boot.kernelModules = [ "wl" ];
-                # boot.initrd.kernelModules = [
-                #   "wl"
-                # ];
-                # boot.extraModulePackages = [ config.boot.kernelPackages.broadcom_sta ];
-                # boot.blacklistedKernelModules = [
-                #   "b43"
-                #   "bcma"
-                # ];
               }
             )
           ];

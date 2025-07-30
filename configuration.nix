@@ -28,18 +28,16 @@
           libressl
         ];
 
-        useFetchCargoVendor = true;
         cargoHash = "sha256-B/Wi69v3liDmuYZiZlU2YaEFgw2XpiOZcC2fn8k5Nkc=";
       };
     })
   ];
 
   # TODO: move to a custom module
-  # boot.kernelPackages = pkgs.linuxPackages_testing;
+  boot.kernelPackages = pkgs.linuxPackages_testing;
+  hardware.enableRedistributableFirmware = true;
 
   programs.niri.enable = true;
-  services.displayManager.sddm.enable = true;
-  services.displayManager.sddm.wayland.enable = true;
   environment.sessionVariables.NIXOS_OZONE_WL = "1";
 
   nix.settings = {
@@ -54,23 +52,20 @@
 
     trusted-substituters = [
       "https://hydra.nixos.org"
-      "https://cache.garnix.io"
     ];
 
     trusted-public-keys = [
       "hydra.nixos.org-1:CNHJZBh9K4tP3EKF6FkkgeVYsS3ohTl+oS0Qa8bezVs="
-      "cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g="
     ];
   };
 
   fonts.packages = [
-    (pkgs.nerd-fonts.jetbrains-mono)
+    (pkgs.nerd-fonts.comic-shanns-mono)
     pkgs.noto-fonts
     pkgs.noto-fonts-color-emoji
   ];
 
   boot.supportedFilesystems = [
-    "bcachefs"
     "btrfs"
   ];
   boot.loader.systemd-boot.enable = true;
@@ -79,6 +74,7 @@
   networking.hostName = "nixos";
   networking.wireless.enable = true;
   networking.wireless.userControlled.enable = true;
+  networking.networkmanager.enable = lib.mkForce false;
 
   time.timeZone = "America/Los_Angeles";
 
@@ -122,17 +118,14 @@
     ];
     shell = pkgs.nushell;
     packages = with pkgs; [
-      floorp
-      servo
+      chromium
+      rbw
       alacritty
       ffmpeg
       blender
-      fuzzel
-      vesktop
+      bemenu
+      equibop
       portablemc
-      (llama-cpp.override {
-        vulkanSupport = true;
-      })
     ];
   };
 
@@ -161,6 +154,7 @@
     dhcpcd
     iw
     nixfmt-rfc-style
+    treefmt
     nil
     nix-output-monitor
   ];
@@ -171,25 +165,52 @@
     algorithm = "zstd";
   };
 
-  nix.optimise = {
-    automatic = true;
-  };
-  nix.gc = {
-    automatic = true;
-    dates = "weekly";
-    options = "--delete-older-than 7d";
+  nix = {
+    settings = {
+      experimental-features = "nix-command flakes";
+      auto-optimise-store = true;
+      download-buffer-size = 134217728;
+
+      extra-substituters = [
+        "https://cache.nixos.org"
+        "https://nix-community.cachix.org"
+        "https://chaotic-nyx.cachix.org"
+      ];
+
+      extra-trusted-public-keys = [
+        "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
+        "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+        "chaotic-nyx.cachix.org-1:HfnXSw4pj95iI/n17rIDy40agHj12WfF+Gqk6SonIT8="
+      ];
+
+      trusted-users = [
+        "root"
+        "@wheel"
+      ];
+    };
+
+    gc = {
+      automatic = true;
+      options = "--delete-older-than 30d";
+      dates = "weekly";
+    };
   };
 
   services.openssh.enable = true;
-  programs.gnupg = {
-    agent.enable = true;
-  };
 
   services.kanata = {
     enable = true;
   };
 
   networking.firewall.enable = true;
+  networking.firewall.allowedTCPPorts = [
+    22 # SSH
+    80 # HTTP
+    443 # HTTPS
+  ];
+  networking.firewall.allowedUDPPorts = [
+    443 # HTTP/3
+  ];
 
   system.stateVersion = lib.mkDefault lib.trivial.release;
 }
