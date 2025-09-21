@@ -1,52 +1,33 @@
 {
+  inputs,
   pkgs,
   lib,
   ...
 }:
 
 {
+  nix.channel.enable = false;
   nixpkgs.overlays = [
-    (final: previous: {
-      portablemc = previous.rustPlatform.buildRustPackage rec {
-        pname = "portablemc";
-        version = "5.0.0-beta.0";
-        sourceRoot = "${src.name}/rust";
-        buildAndTestSubdir = "portablemc-cli";
-
-        src = previous.fetchFromGitHub {
-          owner = "mindstorm38";
-          repo = pname;
-          rev = "c6da8a4f80e53b913bae862c0367cf370a28f2c3";
-          hash = "sha256-4FAq8kth9DILlMVEwkVZvaZuyaUBWaf9ynbQx7FLAh0=";
-        };
-
-        nativeBuildInputs = with final; [
-          pkgconf
-        ];
-
-        buildInputs = with final; [
-          libressl
-        ];
-
-        useFetchCargoVendor = true;
-        cargoHash = "sha256-B/Wi69v3liDmuYZiZlU2YaEFgw2XpiOZcC2fn8k5Nkc=";
-      };
-    })
+    inputs.nix.overlays.default
   ];
 
-  # TODO: move to a custom module
-  # boot.kernelPackages = pkgs.linuxPackages_testing;
+  boot.zfs = {
+    package = pkgs.zfs_unstable;
+  };
+  boot.kernelPackages = lib.mkDefault pkgs.linuxPackages_latest;
+  hardware.enableRedistributableFirmware = true;
 
   programs.niri.enable = true;
-  services.displayManager.sddm.enable = true;
-  services.displayManager.sddm.wayland.enable = true;
   environment.sessionVariables.NIXOS_OZONE_WL = "1";
 
   nix.settings = {
     experimental-features = [
       "nix-command"
       "flakes"
+      "parallel-eval"
+      "ca-derivations"
     ];
+    eval-cores = 0;
     trusted-users = [
       "root"
       "@wheel"
@@ -54,31 +35,34 @@
 
     trusted-substituters = [
       "https://hydra.nixos.org"
-      "https://cache.garnix.io"
     ];
 
     trusted-public-keys = [
       "hydra.nixos.org-1:CNHJZBh9K4tP3EKF6FkkgeVYsS3ohTl+oS0Qa8bezVs="
-      "cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g="
     ];
   };
 
   fonts.packages = [
-    (pkgs.nerd-fonts.jetbrains-mono)
+    pkgs.monocraft
+    pkgs.miracode
     pkgs.noto-fonts
     pkgs.noto-fonts-color-emoji
   ];
 
   boot.supportedFilesystems = [
-    "bcachefs"
     "btrfs"
+    "zfs"
   ];
-  boot.loader.systemd-boot.enable = true;
+  boot.loader.grub = {
+    enable = true;
+    efiSupport = true;
+    device = "nodev";
+  };
   boot.loader.efi.canTouchEfiVariables = false;
 
   networking.hostName = "nixos";
-  networking.wireless.enable = true;
-  networking.wireless.userControlled.enable = true;
+  networking.networkmanager.enable = true;
+  networking.networkmanager.wifi.powersave = false;
 
   time.timeZone = "America/Los_Angeles";
 
@@ -95,18 +79,17 @@
     LC_TIME = "en_US.UTF-8";
   };
 
-  services.xserver.enable = false;
-
   services.printing.enable = true;
 
-  services.pulseaudio.enable = false;
   security.rtkit.enable = true;
+  services.pulseaudio.enable = false;
   services.pipewire = {
     enable = true;
     alsa.enable = true;
-    alsa.support32Bit = false;
     pulse.enable = true;
-    jack.enable = true;
+    wireplumber.enable = true;
+    alsa.support32Bit = false;
+    jack.enable = false;
   };
 
   hardware.graphics.enable = true;
@@ -119,25 +102,19 @@
     extraGroups = [
       "networkmanager"
       "wheel"
+      "kvm"
     ];
     shell = pkgs.nushell;
     packages = with pkgs; [
-      floorp
-      servo
+      firefox
       alacritty
       ffmpeg
       blender
-      fuzzel
-      vesktop
-      portablemc
-      (llama-cpp.override {
-        vulkanSupport = true;
-      })
+      legcord
     ];
   };
 
   environment.systemPackages = with pkgs; [
-    nix-fast-build
     youki
     gnupg
     bat
@@ -160,14 +137,13 @@
     wpa_supplicant
     dhcpcd
     iw
-    nixfmt-rfc-style
-    nil
+    nixd
     nix-output-monitor
   ];
 
   zramSwap = {
     enable = true;
-    memoryPercent = 100;
+    memoryPercent = 75;
     algorithm = "zstd";
   };
 
@@ -177,19 +153,19 @@
   nix.gc = {
     automatic = true;
     dates = "weekly";
-    options = "--delete-older-than 7d";
+    options = "--delete-older-than 30d";
   };
 
   services.openssh.enable = true;
-  programs.gnupg = {
-    agent.enable = true;
-  };
 
   services.kanata = {
     enable = true;
   };
 
   networking.firewall.enable = true;
+  networking.firewall.allowedTCPPorts = [
+    22
+  ];
 
   system.stateVersion = lib.mkDefault lib.trivial.release;
 }
