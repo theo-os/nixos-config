@@ -23,18 +23,24 @@
   boot.kernelModules = [ "kvm-amd" ];
   boot.extraModulePackages = [ ];
 
+  networking.hostId = "a5cd4e1d";
+
   fileSystems."/" = {
-    device = "/dev/disk/by-uuid/1063681d-6d2f-4413-ba8c-3c34a2e54b5a";
-    fsType = "bcachefs";
-    options = [ "compress=zstd:6" ];
+    device = "/dev/disk/by-uuid/0c0056a7-4145-4a1e-b1e7-5f50e4597941";
+    fsType = "btrfs";
+    options = [
+      "subvol=@"
+      "compress=zstd:9"
+      "noatime"
+    ];
   };
 
   fileSystems."/boot" = {
-    device = "/dev/disk/by-uuid/02E6-B2D9";
+    device = "/dev/disk/by-uuid/554C-B702";
     fsType = "vfat";
     options = [
-      "fmask=0022"
-      "dmask=0022"
+      "fmask=0077"
+      "dmask=0077"
     ];
   };
 
