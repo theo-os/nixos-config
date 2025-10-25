@@ -1,15 +1,12 @@
 {
   config,
   lib,
-  pkgs,
-  modulesPath,
   ...
-}:
-
-{
+}: {
+  imports = [
+    ../modules/desktop.nix
+  ];
   nix.settings.max-jobs = 6;
-
-  imports = [ "${modulesPath}/installer/scan/not-detected.nix" ];
 
   boot.initrd.availableKernelModules = [
     "ehci_pci"
@@ -19,11 +16,9 @@
     "sr_mod"
     "sdhci_pci"
   ];
-  boot.initrd.kernelModules = [ ];
-  boot.kernelModules = [ "kvm-amd" ];
-  boot.extraModulePackages = [ ];
-
-  networking.hostId = "a5cd4e1d";
+  boot.initrd.kernelModules = [];
+  boot.kernelModules = ["kvm-amd"];
+  boot.extraModulePackages = [];
 
   fileSystems."/" = {
     device = "/dev/disk/by-uuid/0c0056a7-4145-4a1e-b1e7-5f50e4597941";
@@ -44,7 +39,7 @@
     ];
   };
 
-  swapDevices = [ ];
+  swapDevices = [];
 
   networking.useDHCP = lib.mkDefault true;
 

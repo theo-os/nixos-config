@@ -4,9 +4,7 @@
   fetchFromGitHub,
   llvmPackages_latest,
   acpica-tools,
-}:
-
-let
+}: let
   edk2-platforms-src = fetchFromGitHub {
     owner = "tianocore";
     repo = "edk2-platforms";
@@ -28,8 +26,7 @@ let
     rev = "ea2040c2d4e2200557e87b9f9fbd4f8fb7a2b6e8";
     hash = "sha256-gQY4lQGy9mIQOk+IqzFW31vM7S9K1TRVLjZ6iFVGgXs=";
   };
-in
-(
+in (
   (
     (edk2.override {
       stdenv = llvmPackages_latest.stdenv;
