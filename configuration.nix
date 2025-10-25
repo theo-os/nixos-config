@@ -3,17 +3,18 @@
   pkgs,
   lib,
   ...
-}:
+}: {
+  imports = [
+    inputs.disko.nixosModules.disko
+    ./modules/networking.nix
+  ];
 
-{
   nix.channel.enable = false;
   nixpkgs.overlays = [
     inputs.nix.overlays.default
   ];
 
-  boot.zfs = {
-    package = pkgs.zfs_unstable;
-  };
+  boot.kernelParams = ["net.ifnames=-1"];
   boot.kernelPackages = lib.mkDefault pkgs.linuxPackages_latest;
   hardware.enableRedistributableFirmware = true;
 
@@ -51,18 +52,9 @@
 
   boot.supportedFilesystems = [
     "btrfs"
-    "zfs"
   ];
-  boot.loader.grub = {
-    enable = true;
-    efiSupport = true;
-    device = "nodev";
-  };
+  boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = false;
-
-  networking.hostName = "nixos";
-  networking.networkmanager.enable = true;
-  networking.networkmanager.wifi.powersave = false;
 
   time.timeZone = "America/Los_Angeles";
 
@@ -92,10 +84,6 @@
     jack.enable = false;
   };
 
-  hardware.graphics.enable = true;
-  hardware.bluetooth.enable = true;
-  hardware.bluetooth.powerOnBoot = true;
-
   users.users.theo = {
     isNormalUser = true;
     description = "Theo";
@@ -104,21 +92,15 @@
       "wheel"
       "kvm"
     ];
-    shell = pkgs.nushell;
-    packages = with pkgs; [
-      firefox
-      alacritty
-      ffmpeg
-      blender
-      legcord
+    shell = pkgs.brush;
+    openssh.authorizedKeys.keys = [
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIE0xE9o3tB6RkWRwbQTq1afsJ5uqJCaFlvyi8RvYcZAO"
     ];
   };
 
   environment.systemPackages = with pkgs; [
-    youki
-    gnupg
     bat
-    nushell
+    brush
     helix
     gitoxide
     gitMinimal
@@ -138,7 +120,6 @@
     dhcpcd
     iw
     nixd
-    nix-output-monitor
   ];
 
   zramSwap = {
@@ -157,15 +138,6 @@
   };
 
   services.openssh.enable = true;
-
-  services.kanata = {
-    enable = true;
-  };
-
-  networking.firewall.enable = true;
-  networking.firewall.allowedTCPPorts = [
-    22
-  ];
 
   system.stateVersion = lib.mkDefault lib.trivial.release;
 }

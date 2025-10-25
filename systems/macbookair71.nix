@@ -2,9 +2,7 @@
   config,
   lib,
   ...
-}:
-
-{
+}: {
   nix.settings.max-jobs = 1;
 
   boot.initrd.availableKernelModules = [
@@ -14,12 +12,12 @@
     "usb_storage"
     "sd_mod"
   ];
-  boot.initrd.kernelModules = [ ];
+  boot.initrd.kernelModules = [];
   boot.kernelModules = [
     "kvm-intel"
     "wl"
   ];
-  boot.extraModulePackages = [ config.boot.kernelPackages.broadcom_sta ];
+  boot.extraModulePackages = [config.boot.kernelPackages.broadcom_sta];
 
   fileSystems."/" = {
     device = "/dev/disk/by-uuid/bd84243e-78e7-4874-96f5-b133f5d08111";
@@ -40,7 +38,7 @@
   };
 
   swapDevices = [
-    { device = "/dev/disk/by-uuid/c8a5fe80-8789-4d9a-9ed1-9b8f9c1e2346"; }
+    {device = "/dev/disk/by-uuid/c8a5fe80-8789-4d9a-9ed1-9b8f9c1e2346";}
   ];
 
   networking.useDHCP = lib.mkDefault true;
