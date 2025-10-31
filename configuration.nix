@@ -94,7 +94,7 @@
         "wheel"
         "kvm"
       ];
-      shell = pkgs.brush;
+      shell = pkgs.nushell;
       openssh.authorizedKeys.keys = [
         "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIE0xE9o3tB6RkWRwbQTq1afsJ5uqJCaFlvyi8RvYcZAO"
       ];
