@@ -7,14 +7,6 @@
       inputs.nixpkgs-23-11.follows = "nixpkgs";
       inputs.nixpkgs-regression.follows = "nixpkgs";
     };
-    nixos-anywhere = {
-      url = "github:nix-community/nixos-anywhere";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    disko = {
-      url = "github:nix-community/disko";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     systems.url = "github:nix-systems/default";
   };
 

@@ -5,7 +5,6 @@
   ...
 }: {
   imports = [
-    inputs.disko.nixosModules.disko
     ./modules/networking.nix
   ];
 
@@ -53,7 +52,7 @@
   boot.supportedFilesystems = [
     "btrfs"
   ];
-  boot.loader.systemd-boot.enable = true;
+  boot.loader.grub.enable = true;
   boot.loader.efi.canTouchEfiVariables = false;
 
   time.timeZone = "America/Los_Angeles";
@@ -84,18 +83,32 @@
     jack.enable = false;
   };
 
-  users.users.theo = {
-    isNormalUser = true;
-    description = "Theo";
-    extraGroups = [
-      "networkmanager"
-      "wheel"
-      "kvm"
-    ];
-    shell = pkgs.brush;
-    openssh.authorizedKeys.keys = [
-      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIE0xE9o3tB6RkWRwbQTq1afsJ5uqJCaFlvyi8RvYcZAO"
-    ];
+  users.users = {
+    root.hashedPassword = "!";
+
+    theo = {
+      isNormalUser = true;
+      description = "Theo";
+      extraGroups = [
+        "networkmanager"
+        "wheel"
+        "kvm"
+      ];
+      shell = pkgs.brush;
+      openssh.authorizedKeys.keys = [
+        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIE0xE9o3tB6RkWRwbQTq1afsJ5uqJCaFlvyi8RvYcZAO"
+      ];
+    };
+  };
+
+  security.sudo.wheelNeedsPassword = false;
+  services.openssh = {
+    enable = true;
+    settings = {
+      PermitRootLogin = "no";
+      PasswordAuthentication = false;
+      KbdInteractiveAuthentication = false;
+    };
   };
 
   environment.systemPackages = with pkgs; [
@@ -136,8 +149,6 @@
     dates = "weekly";
     options = "--delete-older-than 30d";
   };
-
-  services.openssh.enable = true;
 
   system.stateVersion = lib.mkDefault lib.trivial.release;
 }
