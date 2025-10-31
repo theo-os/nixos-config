@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:nixos/nixpkgs";
     nix = {
       url = "github:DeterminateSystems/nix-src";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -49,6 +49,17 @@
         modules = [
           ./configuration.nix
           ./systems/hetzner
+        ];
+      };
+
+      pyro = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        specialArgs = {
+          inherit inputs;
+        };
+        modules = [
+          ./configuration.nix
+          ./systems/pyro
         ];
       };
 
