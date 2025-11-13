@@ -14,10 +14,9 @@
   ];
 
   boot.kernelParams = ["net.ifnames=-1"];
-  boot.kernelPackages = lib.mkDefault pkgs.linuxPackages_latest;
+  boot.kernelPackages = lib.mkDefault pkgs.linuxPackages_testing;
   hardware.enableRedistributableFirmware = true;
 
-  programs.niri.enable = true;
   environment.sessionVariables.NIXOS_OZONE_WL = "1";
 
   nix.settings = {
@@ -113,7 +112,7 @@
 
   environment.systemPackages = with pkgs; [
     bat
-    brush
+    nushell
     helix
     gitoxide
     gitMinimal

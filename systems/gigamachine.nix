@@ -17,21 +17,22 @@
     "sdhci_pci"
   ];
   boot.initrd.kernelModules = [];
+  boot.loader.grub.device = "nodev";
+  boot.loader.grub.efiSupport = true;
   boot.kernelModules = ["kvm-amd"];
   boot.extraModulePackages = [];
 
   fileSystems."/" = {
-    device = "/dev/disk/by-uuid/0c0056a7-4145-4a1e-b1e7-5f50e4597941";
+    device = "/dev/disk/by-uuid/cdd101e7-009a-4ec5-af51-8173822cd8fc";
     fsType = "btrfs";
     options = [
-      "subvol=@"
       "compress=zstd:9"
       "noatime"
     ];
   };
 
   fileSystems."/boot" = {
-    device = "/dev/disk/by-uuid/554C-B702";
+    device = "/dev/disk/by-uuid/1346-1F16";
     fsType = "vfat";
     options = [
       "fmask=0077"
@@ -44,5 +45,5 @@
   networking.useDHCP = lib.mkDefault true;
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
-  hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+  hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 }
