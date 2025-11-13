@@ -52,7 +52,7 @@
     "btrfs"
   ];
   boot.loader.grub.enable = true;
-  boot.loader.efi.canTouchEfiVariables = false;
+  boot.loader.efi.canTouchEfiVariables = lib.mkDefault true;
 
   time.timeZone = "America/Los_Angeles";
 
