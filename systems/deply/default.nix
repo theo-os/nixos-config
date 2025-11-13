@@ -9,12 +9,13 @@
     fsType = "ext4";
   };
 
-  boot.loader.grub.device = "/dev/sda";
+  boot.loader.grub.device = "nodev";
+  boot.loader.grub.efiSupport = true;
   boot.initrd.availableKernelModules = ["ahci" "xhci_pci" "virtio_pci" "virtio_scsi" "sd_mod" "sr_mod" "ext4" "btrfs"];
 
   networking = {
     defaultGateway = {
-      address = "172.31.1.1";
+      address = "135.181.6.1";
       interface = "eth0";
     };
     defaultGateway6 = {
@@ -25,14 +26,14 @@
       eth0 = {
         ipv6.addresses = [
           {
-            address = "2a01:4f9:c013:a635::69";
+            address = "2a01:4f9:4b:52ea::69";
             prefixLength = 64;
           }
         ];
         ipv4.addresses = [
           {
-            address = "46.62.228.117";
-            prefixLength = 32;
+            address = "135.181.6.50";
+            prefixLength = 26;
           }
         ];
       };
