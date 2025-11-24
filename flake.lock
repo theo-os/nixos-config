@@ -75,11 +75,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1762967009,
-        "narHash": "sha256-uqYmH0KA8caQqX5u4BMarZsuDlC+71HRsH3h4f3DPCA=",
+        "lastModified": 1763581319,
+        "narHash": "sha256-WHSQO6qiDm2So6lwoms26Eco2AwJQ1RYGiYlVzLokdo=",
         "owner": "DeterminateSystems",
         "repo": "nix-src",
-        "rev": "ef054dc06e9701597bce0b0572af18cb4c7e7277",
+        "rev": "e6812091825de6223ecaebcf5be531796857367b",
         "type": "github"
       },
       "original": {
@@ -90,16 +90,37 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1763003864,
-        "narHash": "sha256-lV+K4Po7bkuUM92umATlgy6tacXGL4gEUfTqM+f4G1U=",
+        "lastModified": 1763678758,
+        "narHash": "sha256-+hBiJ+kG5IoffUOdlANKFflTT5nO3FrrR2CA3178Y5s=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "8aaebd41e5277081bda6ab5509f47aff1c2c3795",
+        "rev": "117cc7f94e8072499b0a7aa4c52084fa4e11cc9b",
         "type": "github"
       },
       "original": {
         "owner": "nixos",
+        "ref": "nixos-unstable",
         "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "oxwm": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1763707622,
+        "narHash": "sha256-busK1/6nWvyMZ9rUsKBcrCnllqmkceDu57VpELWMJpc=",
+        "owner": "tonybanters",
+        "repo": "oxwm",
+        "rev": "b23ed69c4c1f9fd5270b5abe70b928f518d859a2",
+        "type": "github"
+      },
+      "original": {
+        "owner": "tonybanters",
+        "repo": "oxwm",
         "type": "github"
       }
     },
@@ -107,6 +128,7 @@
       "inputs": {
         "nix": "nix",
         "nixpkgs": "nixpkgs",
+        "oxwm": "oxwm",
         "systems": "systems"
       }
     },

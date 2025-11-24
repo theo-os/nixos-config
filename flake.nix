@@ -1,12 +1,14 @@
 {
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     nix = {
       url = "github:DeterminateSystems/nix-src";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.nixpkgs-23-11.follows = "nixpkgs";
       inputs.nixpkgs-regression.follows = "nixpkgs";
     };
+    oxwm.url = "github:tonybanters/oxwm";
+    oxwm.inputs.nixpkgs.follows = "nixpkgs";
     systems.url = "github:nix-systems/default";
   };
 
@@ -52,14 +54,14 @@
         ];
       };
 
-      pyro = nixpkgs.lib.nixosSystem {
+      xps = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         specialArgs = {
           inherit inputs;
         };
         modules = [
           ./configuration.nix
-          ./systems/pyro
+          ./systems/xps.nix
         ];
       };
 
