@@ -1,7 +1,0 @@
-keys:
-  - &admin_theo 147cjzdqzd4r83vs6m6pgxp8rzxkjetf3zqdgz06rpwlq6pck7pfsdqh5dh
-creation_rules:
-  - path_regex: secrets/[^/]+\.(yaml|json|env|ini)$
-    key_groups:
-    - age:
-      - *admin_theo

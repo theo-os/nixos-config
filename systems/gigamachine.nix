@@ -2,7 +2,8 @@
   config,
   lib,
   ...
-}: {
+}:
+{
   imports = [
     ../modules/desktop.nix
   ];
@@ -16,23 +17,23 @@
     "sr_mod"
     "sdhci_pci"
   ];
-  boot.initrd.kernelModules = [];
+  boot.initrd.kernelModules = [ ];
   boot.loader.grub.device = "nodev";
   boot.loader.grub.efiSupport = true;
-  boot.kernelModules = ["kvm-amd"];
-  boot.extraModulePackages = [];
+  boot.kernelModules = [ "kvm-amd" ];
+  boot.extraModulePackages = [ ];
 
   fileSystems."/" = {
-    device = "/dev/disk/by-uuid/cdd101e7-009a-4ec5-af51-8173822cd8fc";
+    device = "/dev/disk/by-uuid/222b86f8-263f-4d75-8362-9c0c75383518";
     fsType = "btrfs";
     options = [
-      "compress=zstd:9"
+      "compress=zstd:6"
       "noatime"
     ];
   };
 
   fileSystems."/boot" = {
-    device = "/dev/disk/by-uuid/1346-1F16";
+    device = "/dev/disk/by-uuid/F7D6-569E";
     fsType = "vfat";
     options = [
       "fmask=0077"
@@ -40,7 +41,7 @@
     ];
   };
 
-  swapDevices = [];
+  swapDevices = [ ];
 
   networking.useDHCP = lib.mkDefault true;
 

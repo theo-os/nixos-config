@@ -3,7 +3,8 @@
   pkgs,
   lib,
   ...
-}: {
+}:
+{
   imports = [
     ./modules/networking.nix
   ];
@@ -13,11 +14,9 @@
     inputs.nix.overlays.default
   ];
 
-  boot.kernelParams = ["net.ifnames=-1"];
+  boot.kernelParams = [ "net.ifnames=-1" ];
   boot.kernelPackages = lib.mkDefault pkgs.linuxPackages_testing;
   hardware.enableRedistributableFirmware = true;
-
-  environment.sessionVariables.NIXOS_OZONE_WL = "1";
 
   nix.settings = {
     experimental-features = [
@@ -25,6 +24,8 @@
       "flakes"
       "parallel-eval"
       "ca-derivations"
+      "dynamic-derivations"
+      "blake3-hashes"
     ];
     eval-cores = 0;
     trusted-users = [
@@ -32,12 +33,19 @@
       "@wheel"
     ];
 
+    accept-flake-config = true;
+    auto-optimise-store = true;
+
     trusted-substituters = [
       "https://hydra.nixos.org"
+      "https://cache.tinted.dev"
+      "https://cache.garnix.io"
     ];
 
     trusted-public-keys = [
+      "cache.tinted.dev:HbSI/UAU9rer8jmEkMoiWWzEoyta92rLsUnQ9K6KTLA="
       "hydra.nixos.org-1:CNHJZBh9K4tP3EKF6FkkgeVYsS3ohTl+oS0Qa8bezVs="
+      "cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g="
     ];
   };
 
@@ -69,17 +77,9 @@
     LC_TIME = "en_US.UTF-8";
   };
 
-  services.printing.enable = true;
-
-  security.rtkit.enable = true;
-  services.pulseaudio.enable = false;
-  services.pipewire = {
+  virtualisation.libvirtd = {
     enable = true;
-    alsa.enable = true;
-    pulse.enable = true;
-    wireplumber.enable = true;
-    alsa.support32Bit = false;
-    jack.enable = false;
+    qemu.vhostUserPackages = with pkgs; [ virtiofsd ];
   };
 
   users.users = {
@@ -92,13 +92,17 @@
         "networkmanager"
         "wheel"
         "kvm"
+        "libvirtd"
+        "adbusers"
       ];
       shell = pkgs.nushell;
       openssh.authorizedKeys.keys = [
-        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIE0xE9o3tB6RkWRwbQTq1afsJ5uqJCaFlvyi8RvYcZAO"
+        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMONqauyyiKgkkjn6PTWxRp5nrHeo3w9X9NZ7UbFjRsY"
       ];
     };
   };
+
+  programs.adb.enable = true;
 
   security.sudo.wheelNeedsPassword = false;
   services.openssh = {
@@ -111,13 +115,13 @@
   };
 
   environment.systemPackages = with pkgs; [
+    dnsmasq
     bat
     nushell
     helix
     gitoxide
     gitMinimal
     jujutsu
-    uutils-coreutils-noprefix
     ripgrep
     skim
     sd
@@ -132,6 +136,10 @@
     dhcpcd
     iw
     nixd
+    libarchive
+    uutils-coreutils-noprefix
+    wireguard-tools
+    nix-output-monitor
   ];
 
   zramSwap = {

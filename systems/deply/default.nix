@@ -1,8 +1,12 @@
-{...}: {
+{ ... }:
+{
   fileSystems."/" = {
     device = "/dev/disk/by-label/nixos";
     fsType = "btrfs";
-    options = ["compress=zstd:9" "noatime"];
+    options = [
+      "compress=zstd:9"
+      "noatime"
+    ];
   };
   fileSystems."/boot" = {
     device = "/dev/disk/by-label/boot";
@@ -11,7 +15,16 @@
 
   boot.loader.grub.device = "nodev";
   boot.loader.grub.efiSupport = true;
-  boot.initrd.availableKernelModules = ["ahci" "xhci_pci" "virtio_pci" "virtio_scsi" "sd_mod" "sr_mod" "ext4" "btrfs"];
+  boot.initrd.availableKernelModules = [
+    "ahci"
+    "xhci_pci"
+    "virtio_pci"
+    "virtio_scsi"
+    "sd_mod"
+    "sr_mod"
+    "ext4"
+    "btrfs"
+  ];
 
   networking = {
     defaultGateway = {
