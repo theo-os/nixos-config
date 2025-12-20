@@ -1,12 +1,6 @@
 {
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs";
-    nix = {
-      url = "github:DeterminateSystems/nix-src";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.nixpkgs-23-11.follows = "nixpkgs";
-      inputs.nixpkgs-regression.follows = "nixpkgs";
-    };
     systems.url = "github:nix-systems/default";
   };
 
@@ -55,6 +49,17 @@
           modules = [
             ./configuration.nix
             ./systems/gigamachine.nix
+          ];
+        };
+
+        loq = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          specialArgs = {
+            inherit inputs;
+          };
+          modules = [
+            ./configuration.nix
+            ./systems/loq.nix
           ];
         };
 

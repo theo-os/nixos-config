@@ -16,6 +16,7 @@
     prismlauncher
     opencode
     zed-editor
+    lmms
   ];
 
   programs.virt-manager.enable = true;

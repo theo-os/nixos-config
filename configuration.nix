@@ -11,7 +11,6 @@
 
   nix.channel.enable = false;
   nixpkgs.overlays = [
-    inputs.nix.overlays.default
   ];
 
   boot.kernelParams = [ "net.ifnames=-1" ];
@@ -22,12 +21,10 @@
     experimental-features = [
       "nix-command"
       "flakes"
-      "parallel-eval"
       "ca-derivations"
       "dynamic-derivations"
       "blake3-hashes"
     ];
-    eval-cores = 0;
     trusted-users = [
       "root"
       "@wheel"
