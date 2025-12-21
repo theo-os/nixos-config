@@ -8,6 +8,21 @@
     ../modules/desktop.nix
   ];
   nix.settings.max-jobs = 6;
+  # TODO: switch back to nvidia-open once novideo fixes their drivers...
+  # See https://github.com/YaLTeR/niri/issues/2335
+  # nixpkgs.config.allowUnfreePredicate =
+  #   pkg:
+  #   builtins.elem (lib.getName pkg) [
+  #     "nvidia-x11"
+  #     "nvidia-settings"
+  #   ];
+  # hardware.nvidia = {
+  #   open = true;
+  #   modesetting.enable = true;
+  #   powerManagement.enable = true;
+  #   package = config.boot.kernelPackages.nvidiaPackages.production;
+  # };
+  # services.xserver.videoDrivers = [ "nvidia" ];
 
   boot.initrd.availableKernelModules = [
     "ehci_pci"

@@ -1,5 +1,4 @@
 {
-  inputs,
   pkgs,
   lib,
   ...
@@ -10,12 +9,32 @@
   ];
 
   nix.channel.enable = false;
-  nixpkgs.overlays = [
-  ];
+  nix.package = pkgs.nixVersions.git;
 
   boot.kernelParams = [ "net.ifnames=-1" ];
   boot.kernelPackages = lib.mkDefault pkgs.linuxPackages_testing;
   hardware.enableRedistributableFirmware = true;
+
+  programs = {
+    nix-ld = {
+      enable = true;
+      # put whatever libraries you think you might need
+      # nix-ld includes a strong sane-default as well
+      # in addition to these
+      libraries = with pkgs; [
+        stdenv.cc.cc.lib
+        (zlib-ng.override {
+          withZlibCompat = true;
+        })
+      ];
+    };
+  };
+
+  services = {
+    envfs = {
+      enable = true;
+    };
+  };
 
   nix.settings = {
     experimental-features = [
@@ -33,15 +52,13 @@
     accept-flake-config = true;
     auto-optimise-store = true;
 
-    trusted-substituters = [
-      "https://hydra.nixos.org"
-      "https://cache.tinted.dev"
+    extra-substituters = [
+      "https://cache.nixos.org"
       "https://cache.garnix.io"
     ];
 
-    trusted-public-keys = [
-      "cache.tinted.dev:HbSI/UAU9rer8jmEkMoiWWzEoyta92rLsUnQ9K6KTLA="
-      "hydra.nixos.org-1:CNHJZBh9K4tP3EKF6FkkgeVYsS3ohTl+oS0Qa8bezVs="
+    extra-trusted-public-keys = [
+      "cache.nixos.org-1:CNHJZBh9K4tP3EKF6FkkgeVYsS3ohTl+oS0Qa8bezVs="
       "cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g="
     ];
   };
@@ -74,11 +91,6 @@
     LC_TIME = "en_US.UTF-8";
   };
 
-  virtualisation.libvirtd = {
-    enable = true;
-    qemu.vhostUserPackages = with pkgs; [ virtiofsd ];
-  };
-
   users.users = {
     root.hashedPassword = "!";
 
@@ -89,7 +101,6 @@
         "networkmanager"
         "wheel"
         "kvm"
-        "libvirtd"
         "adbusers"
       ];
       shell = pkgs.nushell;
@@ -137,6 +148,7 @@
     uutils-coreutils-noprefix
     wireguard-tools
     nix-output-monitor
+    qemu
   ];
 
   zramSwap = {

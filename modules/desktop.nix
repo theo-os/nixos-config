@@ -1,8 +1,24 @@
-{ pkgs, ... }:
+{ inputs, pkgs, ... }:
 {
-  hardware.graphics.enable = true;
-  hardware.bluetooth.enable = true;
-  hardware.bluetooth.powerOnBoot = true;
+  environment.sessionVariables.NIXOS_OZONE_WL = "1";
+  hardware.graphics = {
+    enable = true;
+    package =
+      (pkgs.mesa.overrideAttrs (old: {
+        version = inputs.mesa.rev;
+        src = inputs.mesa;
+      })).override
+        {
+          galliumDrivers = [
+            "zink"
+            "virgl"
+          ];
+        };
+  };
+  hardware.bluetooth = {
+    enable = true;
+    powerOnBoot = true;
+  };
   environment.systemPackages = with pkgs; [
     firefox
     alacritty
@@ -17,9 +33,10 @@
     opencode
     zed-editor
     lmms
+    android-studio
+    mpv
   ];
-
-  programs.virt-manager.enable = true;
+  nixpkgs.config.allowUnfree = true;
 
   security.wrappers = {
     ffmpeg = {
