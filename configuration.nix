@@ -19,7 +19,7 @@
   nix.package = pkgs.nixVersions.git;
 
   boot.kernelParams = [ "net.ifnames=-1" ];
-  boot.kernelPackages = lib.mkDefault pkgs.linuxPackages_testing;
+  boot.kernelPackages = lib.mkDefault pkgs.linuxPackages_latest;
   hardware.enableRedistributableFirmware = true;
 
   programs = {

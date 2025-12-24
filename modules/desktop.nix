@@ -3,17 +3,6 @@
   environment.sessionVariables.NIXOS_OZONE_WL = "1";
   hardware.graphics = {
     enable = true;
-    package =
-      (pkgs.mesa.overrideAttrs (old: {
-        version = inputs.mesa.rev;
-        src = inputs.mesa;
-      })).override
-        {
-          galliumDrivers = [
-            "zink"
-            "virgl"
-          ];
-        };
   };
   hardware.bluetooth = {
     enable = true;
@@ -41,6 +30,7 @@
     chromium
     xwayland-satellite
     brightnessctl
+    inputs.awww.packages.${pkgs.stdenv.hostPlatform.system}.awww
   ];
   nixpkgs.config.allowUnfree = true;
 

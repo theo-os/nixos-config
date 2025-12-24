@@ -1,9 +1,9 @@
 {
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs";
-    mesa = {
-      url = "git+https://gitlab.freedesktop.org/mesa/mesa";
-      flake = false;
+    awww = {
+      url = "git+https://codeberg.org/LGFae/awww";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
     home-manager = {
       url = "github:nix-community/home-manager";
