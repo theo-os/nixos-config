@@ -1,7 +1,6 @@
 {
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs";
-    systems.url = "github:nix-systems/default";
     mesa = {
       url = "git+https://gitlab.freedesktop.org/mesa/mesa";
       flake = false;
@@ -27,7 +26,6 @@
   outputs =
     {
       nixpkgs,
-      systems,
       ...
     }@inputs:
     let
