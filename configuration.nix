@@ -1,12 +1,19 @@
 {
+  inputs,
   pkgs,
   lib,
   ...
 }:
 {
   imports = [
+    inputs.home-manager.nixosModules.home-manager
     ./modules/networking.nix
   ];
+
+  home-manager.useGlobalPkgs = true;
+  home-manager.useUserPackages = true;
+
+  home-manager.users.theo = import ./users/theo.nix;
 
   nix.channel.enable = false;
   nix.package = pkgs.nixVersions.git;
@@ -18,9 +25,6 @@
   programs = {
     nix-ld = {
       enable = true;
-      # put whatever libraries you think you might need
-      # nix-ld includes a strong sane-default as well
-      # in addition to these
       libraries = with pkgs; [
         stdenv.cc.cc.lib
         (zlib-ng.override {
@@ -148,7 +152,7 @@
     uutils-coreutils-noprefix
     wireguard-tools
     nix-output-monitor
-    qemu
+    crosvm
   ];
 
   zramSwap = {

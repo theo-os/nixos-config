@@ -35,8 +35,16 @@
     lmms
     android-studio
     mpv
+    yt-dlp
+    mullvad-vpn
+    mangohud
+    chromium
+    xwayland-satellite
+    brightnessctl
   ];
   nixpkgs.config.allowUnfree = true;
+
+  services.mullvad-vpn.enable = true;
 
   security.wrappers = {
     ffmpeg = {
@@ -47,12 +55,8 @@
     };
   };
 
-  programs.uwsm.enable = true;
-
-  programs.hyprland = {
+  programs.niri = {
     enable = true;
-    withUWSM = true;
-    xwayland.enable = true;
   };
 
   services.kanata = {
