@@ -11,6 +11,10 @@
     ./modules/neovim.nix
   ];
 
+  nixpkgs.overlays = [
+    inputs.nix-tree-rs.overlays.default
+  ];
+
   home-manager.useGlobalPkgs = true;
   home-manager.useUserPackages = true;
 
@@ -119,7 +123,6 @@
     dnsmasq
     bat
     nushell
-    helix
     gitoxide
     gitMinimal
     jujutsu
@@ -140,7 +143,6 @@
     libarchive
     uutils-coreutils-noprefix
     wireguard-tools
-    nix-output-monitor
     qemu
   ];
 

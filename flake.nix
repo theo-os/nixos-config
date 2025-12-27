@@ -13,6 +13,20 @@
       url = "github:nix-community/nixvim";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    flake-parts = {
+      url = "github:hercules-ci/flake-parts";
+      inputs.nixpkgs-lib.follows = "nixpkgs";
+    };
+    nix-tree-rs = {
+      url = "github:theoparis/nix-tree-rs/push-qzkvpquvslwl";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-parts.follows = "flake-parts";
+      inputs.treefmt-nix.follows = "treefmt-nix";
+    };
+    treefmt-nix = {
+      url = "github:numtide/treefmt-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   nixConfig = {
@@ -30,70 +44,87 @@
   outputs =
     {
       nixpkgs,
+      flake-parts,
       ...
     }@inputs:
-    let
-      eachSystem = nixpkgs.lib.genAttrs [
-        "x86_64-linux"
-        "riscv64-linux"
-        "aarch64-linux"
-      ];
-    in
-    {
-      formatter = eachSystem (system: nixpkgs.legacyPackages.${system}.nixfmt-tree);
-      nixosConfigurations = {
-        gigamachine = nixpkgs.lib.nixosSystem {
-          system = "x86_64-linux";
-          specialArgs = {
-            inherit inputs;
+    flake-parts.lib.mkFlake { inherit inputs; } (
+      top@{
+        config,
+        withSystem,
+        moduleWithSystem,
+        ...
+      }:
+      {
+        imports = [
+          inputs.treefmt-nix.flakeModule
+        ];
+        systems = [
+          "x86_64-linux"
+          "aarch64-linux"
+          "riscv64-linux"
+        ];
+        flake = {
+          nixosConfigurations = {
+            gigamachine = nixpkgs.lib.nixosSystem {
+              system = "x86_64-linux";
+              specialArgs = {
+                inherit inputs;
+              };
+              modules = [
+                ./configuration.nix
+                ./systems/gigamachine.nix
+              ];
+            };
+
+            loq = nixpkgs.lib.nixosSystem {
+              system = "x86_64-linux";
+              specialArgs = {
+                inherit inputs;
+              };
+              modules = [
+                ./configuration.nix
+                ./systems/loq.nix
+              ];
+            };
+
+            deply = nixpkgs.lib.nixosSystem {
+              system = "x86_64-linux";
+              specialArgs = {
+                inherit inputs;
+              };
+              modules = [
+                ./configuration.nix
+                ./systems/deply
+              ];
+            };
+
+            iso = nixpkgs.lib.nixosSystem {
+              system = "x86_64-linux";
+              specialArgs = {
+                inherit inputs;
+              };
+              modules = [
+                ./configuration.nix
+                "${nixpkgs}/nixos/modules/installer/cd-dvd/iso-image.nix"
+                "${nixpkgs}/nixos/modules/profiles/installation-device.nix"
+                "${nixpkgs}/nixos/modules/profiles/minimal.nix"
+                (
+                  { lib, ... }:
+                  {
+                    nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
+                    isoImage.edition = lib.mkOverride 500 "minimal";
+                  }
+                )
+              ];
+            };
           };
-          modules = [
-            ./configuration.nix
-            ./systems/gigamachine.nix
-          ];
         };
 
-        loq = nixpkgs.lib.nixosSystem {
-          system = "x86_64-linux";
-          specialArgs = {
-            inherit inputs;
+        perSystem =
+          { ... }:
+          {
+            treefmt.programs.nixfmt.enable = true;
           };
-          modules = [
-            ./configuration.nix
-            ./systems/loq.nix
-          ];
-        };
-
-        deply = nixpkgs.lib.nixosSystem {
-          system = "x86_64-linux";
-          specialArgs = {
-            inherit inputs;
-          };
-          modules = [
-            ./configuration.nix
-            ./systems/deply
-          ];
-        };
-
-        iso = nixpkgs.lib.nixosSystem {
-          system = "x86_64-linux";
-          specialArgs = {
-            inherit inputs;
-          };
-          modules = [
-            ./configuration.nix
-            "${nixpkgs}/nixos/modules/installer/cd-dvd/iso-image.nix"
-            "${nixpkgs}/nixos/modules/profiles/installation-device.nix"
-            "${nixpkgs}/nixos/modules/profiles/minimal.nix"
-            (
-              { lib, ... }:
-              {
-                nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
-                isoImage.edition = lib.mkOverride 500 "minimal";
-              }
-            )
-          ];
-        };
-      };
-    };
+      }
+    );
 }

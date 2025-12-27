@@ -41,6 +41,7 @@ in
     xwayland-satellite
     brightnessctl
     chromium
+    equibop
     inputs.awww.packages.${pkgs.stdenv.hostPlatform.system}.awww
   ];
   nixpkgs.config.allowUnfree = true;
