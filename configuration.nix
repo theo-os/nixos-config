@@ -8,6 +8,7 @@
   imports = [
     inputs.home-manager.nixosModules.home-manager
     ./modules/networking.nix
+    ./modules/neovim.nix
   ];
 
   home-manager.useGlobalPkgs = true;
@@ -22,22 +23,9 @@
   boot.kernelPackages = lib.mkDefault pkgs.linuxPackages_latest;
   hardware.enableRedistributableFirmware = true;
 
-  programs = {
-    nix-ld = {
-      enable = true;
-      libraries = with pkgs; [
-        stdenv.cc.cc.lib
-        (zlib-ng.override {
-          withZlibCompat = true;
-        })
-      ];
-    };
-  };
-
-  services = {
-    envfs = {
-      enable = true;
-    };
+  virtualisation.podman = {
+    enable = true;
+    dockerCompat = true;
   };
 
   nix.settings = {
@@ -127,6 +115,7 @@
   };
 
   environment.systemPackages = with pkgs; [
+    distrobox
     dnsmasq
     bat
     nushell
@@ -152,7 +141,7 @@
     uutils-coreutils-noprefix
     wireguard-tools
     nix-output-monitor
-    crosvm
+    qemu
   ];
 
   zramSwap = {

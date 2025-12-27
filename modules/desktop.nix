@@ -1,4 +1,7 @@
 { inputs, pkgs, ... }:
+let
+  chromiumFlags = "--use-cmd-decoder=passthrough --enable-features=WaylandLinuxDrmSyncobj,AcceleratedVideoDecodeLinuxZeroCopyGL,AcceleratedVideoDecodeLinuxGL,VaapiOnNvidiaGPUs,AcceleratedVideoEncoder --enable-unsafe-webgpu";
+in
 {
   environment.sessionVariables.NIXOS_OZONE_WL = "1";
   hardware.graphics = {
@@ -8,6 +11,15 @@
     enable = true;
     powerOnBoot = true;
   };
+
+  nixpkgs.overlays = [
+    (final: previous: {
+      chromium = previous.chromium.override {
+        commandLineArgs = chromiumFlags;
+      };
+    })
+  ];
+
   environment.systemPackages = with pkgs; [
     firefox
     alacritty
@@ -17,19 +29,18 @@
     ffmpeg
     obs-studio
     blender
-    equibop
     prismlauncher
     opencode
-    zed-editor
+    neovide
     lmms
     android-studio
     mpv
     yt-dlp
     mullvad-vpn
     mangohud
-    chromium
     xwayland-satellite
     brightnessctl
+    chromium
     inputs.awww.packages.${pkgs.stdenv.hostPlatform.system}.awww
   ];
   nixpkgs.config.allowUnfree = true;

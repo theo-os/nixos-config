@@ -8,8 +8,7 @@
     ../modules/desktop.nix
   ];
   nix.settings.max-jobs = 6;
-  # TODO: switch back to nvidia-open once novideo fixes their drivers...
-  # See https://github.com/YaLTeR/niri/issues/2335
+  # FIXME: zed has issues with niri: https://github.com/YaLTeR/niri/issues/2335
   # nixpkgs.config.allowUnfreePredicate =
   #   pkg:
   #   builtins.elem (lib.getName pkg) [
@@ -37,6 +36,9 @@
   boot.loader.grub.efiSupport = true;
   boot.kernelModules = [ "kvm-intel" ];
   boot.extraModulePackages = [ ];
+  boot.kernelParams = [
+    "i915.enable_dpcd_backlight=1"
+  ];
 
   fileSystems."/" = {
     device = "/dev/disk/by-uuid/a36f0b52-c13b-4587-8ecf-b20e0b60f29a";

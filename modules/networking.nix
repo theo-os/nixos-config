@@ -1,9 +1,5 @@
 { ... }:
 {
-  services.kresd.enable = true;
-  services.resolved.enable = false;
-  networking.nameservers = [ "::1" ];
-
   networking = {
     hostName = "nixos";
     networkmanager.enable = true;
