@@ -16,6 +16,7 @@
     plugins = {
       lualine.enable = true;
       opencode.enable = true;
+      blink-cmp.enable = true;
       snacks = {
         enable = true;
         settings.input.enable = true;
@@ -37,6 +38,9 @@
                 ".git"
               ];
             };
+          };
+          nixd = {
+            enable = true;
           };
           clangd = {
             config = {

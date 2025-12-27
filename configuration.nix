@@ -11,6 +11,10 @@
     ./modules/neovim.nix
   ];
 
+  nixpkgs.overlays = [
+    inputs.nix-tree-rs.overlays.default
+  ];
+
   home-manager.useGlobalPkgs = true;
   home-manager.useUserPackages = true;
 
@@ -22,11 +26,6 @@
   boot.kernelParams = [ "net.ifnames=-1" ];
   boot.kernelPackages = lib.mkDefault pkgs.linuxPackages_latest;
   hardware.enableRedistributableFirmware = true;
-
-  virtualisation.podman = {
-    enable = true;
-    dockerCompat = true;
-  };
 
   nix.settings = {
     experimental-features = [
@@ -94,6 +93,7 @@
         "wheel"
         "kvm"
         "adbusers"
+        "libvirtd"
       ];
       shell = pkgs.nushell;
       openssh.authorizedKeys.keys = [
@@ -115,11 +115,9 @@
   };
 
   environment.systemPackages = with pkgs; [
-    distrobox
     dnsmasq
     bat
     nushell
-    helix
     gitoxide
     gitMinimal
     jujutsu
@@ -137,10 +135,11 @@
     dhcpcd
     iw
     nixd
+    nix-output-monitor
     libarchive
     uutils-coreutils-noprefix
+    watchman
     wireguard-tools
-    nix-output-monitor
     qemu
   ];
 
