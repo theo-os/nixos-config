@@ -6,6 +6,7 @@
 }:
 {
   imports = [
+    inputs.lix-module.nixosModules.default
     ./modules/networking.nix
     ./modules/neovim.nix
   ];
@@ -25,10 +26,6 @@
     experimental-features = [
       "nix-command"
       "flakes"
-      "ca-derivations"
-      "dynamic-derivations"
-      "recursive-nix"
-      "blake3-hashes"
     ];
     trusted-users = [
       "root"
@@ -85,7 +82,6 @@
         "adbusers"
         "libvirtd"
       ];
-      shell = pkgs.nushell;
       openssh.authorizedKeys.keys = [
         "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIE0xE9o3tB6RkWRwbQTq1afsJ5uqJCaFlvyi8RvYcZAO"
       ];
@@ -105,7 +101,7 @@
   environment.systemPackages = with pkgs; [
     dnsmasq
     bat
-    nushell
+    brush
     gitoxide
     gitMinimal
     jujutsu
@@ -119,19 +115,18 @@
     zoxide
     zellij
     btop
-    fastfetch
     wpa_supplicant
     dhcpcd
     iw
     nixd
     libarchive
     uutils-coreutils-noprefix
-    nix-output-monitor
     libarchive
     uutils-coreutils-noprefix
     watchman
     wireguard-tools
     qemu
+    nix-tree
   ];
 
   services.mullvad-vpn.enable = true;

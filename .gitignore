@@ -1,5 +1,6 @@
 *.*env*
 *.*log*
 /nixpkgs/
-result
 secrets.json
+/result-*
+/result
