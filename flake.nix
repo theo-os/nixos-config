@@ -21,22 +21,16 @@
       url = "github:theoparis/nix-tree-rs/push-qzkvpquvslwl";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-parts.follows = "flake-parts";
-      inputs.treefmt-nix.follows = "treefmt-nix";
     };
-    treefmt-nix = {
-      url = "github:numtide/treefmt-nix";
+    lix = {
+      url = "git+https://git.lix.systems/lix-project/lix";
+      flake = false;
+    };
+    lix-module = {
+      url = "git+https://git.lix.systems/lix-project/nixos-module";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.lix.follows = "lix";
     };
-  };
-
-  nixConfig = {
-    extra-substituters = [
-      "https://cache.nixos.org"
-    ];
-
-    extra-trusted-public-keys = [
-      "cache.nixos.org-1:CNHJZBh9K4tP3EKF6FkkgeVYsS3ohTl+oS0Qa8bezVs="
-    ];
   };
 
   outputs =
@@ -51,7 +45,6 @@
       }:
       {
         imports = [
-          inputs.treefmt-nix.flakeModule
         ];
         systems = [
           "x86_64-linux"
@@ -116,9 +109,9 @@
         };
 
         perSystem =
-          { ... }:
+          { pkgs, ... }:
           {
-            treefmt.programs.nixfmt.enable = true;
+            formatter = pkgs.nixfmt-rfc-style;
           };
       }
     );

@@ -30,7 +30,8 @@
     colorschemes.catppuccin.enable = true;
     plugins = {
       lualine.enable = true;
-      opencode.enable = true;
+      codecompanion.enable = true;
+      copilot-lua.enable = true;
       blink-cmp.enable = true;
       snacks = {
         enable = true;
