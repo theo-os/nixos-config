@@ -10,7 +10,22 @@
       relativenumber = true;
       number = true;
       whichwrap = "<,>,[,]";
+      expandtab = true;
+      shiftwidth = 2;
+      tabstop = 2;
     };
+
+    globals.mapleader = " ";
+
+    keymaps = [
+      {
+        action = "<cmd>:lua MiniFiles.open()<CR>";
+        key = "<leader>f";
+        options = {
+          silent = true;
+        };
+      }
+    ];
 
     colorschemes.catppuccin.enable = true;
     plugins = {
@@ -21,7 +36,7 @@
         enable = true;
         settings.input.enable = true;
       };
-      oil.enable = true;
+      mini-files.enable = true;
       lsp = {
         enable = true;
         servers = {
@@ -72,13 +87,15 @@
             enable = true;
             installRustc = false;
             installCargo = false;
-            config = {
-              checkOnSave = true;
-              check = {
-                command = "clippy";
-              };
-              procMacro = {
-                enable = true;
+            installRustfmt = false;
+            extraOptions = {
+              settings = {
+                rust-analyzer = {
+                  checkOnSave = true;
+                  check = {
+                    command = "clippy";
+                  };
+                };
               };
             };
           };

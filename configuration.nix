@@ -6,26 +6,20 @@
 }:
 {
   imports = [
-    inputs.home-manager.nixosModules.home-manager
     ./modules/networking.nix
     ./modules/neovim.nix
   ];
 
+  nix.channel.enable = false;
   nixpkgs.overlays = [
     inputs.nix-tree-rs.overlays.default
   ];
 
-  home-manager.useGlobalPkgs = true;
-  home-manager.useUserPackages = true;
-
-  home-manager.users.theo = import ./users/theo.nix;
-
-  nix.channel.enable = false;
-  nix.package = pkgs.nixVersions.git;
-
   boot.kernelParams = [ "net.ifnames=-1" ];
   boot.kernelPackages = lib.mkDefault pkgs.linuxPackages_latest;
   hardware.enableRedistributableFirmware = true;
+
+  environment.sessionVariables.NIXOS_OZONE_WL = "1";
 
   nix.settings = {
     experimental-features = [
@@ -33,6 +27,7 @@
       "flakes"
       "ca-derivations"
       "dynamic-derivations"
+      "recursive-nix"
       "blake3-hashes"
     ];
     trusted-users = [
@@ -40,17 +35,12 @@
       "@wheel"
     ];
 
-    accept-flake-config = true;
-    auto-optimise-store = true;
-
-    extra-substituters = [
-      "https://cache.nixos.org"
-      "https://cache.garnix.io"
+    trusted-substituters = [
+      "https://hydra.nixos.org"
     ];
 
-    extra-trusted-public-keys = [
-      "cache.nixos.org-1:CNHJZBh9K4tP3EKF6FkkgeVYsS3ohTl+oS0Qa8bezVs="
-      "cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g="
+    trusted-public-keys = [
+      "hydra.nixos.org-1:CNHJZBh9K4tP3EKF6FkkgeVYsS3ohTl+oS0Qa8bezVs="
     ];
   };
 
@@ -97,12 +87,10 @@
       ];
       shell = pkgs.nushell;
       openssh.authorizedKeys.keys = [
-        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMONqauyyiKgkkjn6PTWxRp5nrHeo3w9X9NZ7UbFjRsY"
+        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIE0xE9o3tB6RkWRwbQTq1afsJ5uqJCaFlvyi8RvYcZAO"
       ];
     };
   };
-
-  programs.adb.enable = true;
 
   security.sudo.wheelNeedsPassword = false;
   services.openssh = {
@@ -121,6 +109,7 @@
     gitoxide
     gitMinimal
     jujutsu
+    uutils-coreutils-noprefix
     ripgrep
     skim
     sd
@@ -135,6 +124,8 @@
     dhcpcd
     iw
     nixd
+    libarchive
+    uutils-coreutils-noprefix
     nix-output-monitor
     libarchive
     uutils-coreutils-noprefix
@@ -142,6 +133,8 @@
     wireguard-tools
     qemu
   ];
+
+  services.mullvad-vpn.enable = true;
 
   zramSwap = {
     enable = true;

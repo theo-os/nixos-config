@@ -1,52 +1,20 @@
-{ inputs, pkgs, ... }:
-let
-  chromiumFlags = "--use-cmd-decoder=passthrough --enable-features=WaylandLinuxDrmSyncobj,AcceleratedVideoDecodeLinuxZeroCopyGL,AcceleratedVideoDecodeLinuxGL,VaapiOnNvidiaGPUs,AcceleratedVideoEncoder --enable-unsafe-webgpu";
-in
+{ pkgs, ... }:
 {
-  environment.sessionVariables.NIXOS_OZONE_WL = "1";
-  hardware.graphics = {
-    enable = true;
-  };
-  hardware.bluetooth = {
-    enable = true;
-    powerOnBoot = true;
-  };
-
-  nixpkgs.overlays = [
-    (final: previous: {
-      chromium = previous.chromium.override {
-        commandLineArgs = chromiumFlags;
-      };
-    })
-  ];
-
+  hardware.graphics.enable = true;
+  hardware.bluetooth.enable = true;
+  hardware.bluetooth.powerOnBoot = true;
   environment.systemPackages = with pkgs; [
     firefox
-    alacritty
-    hyprshot
     wl-clipboard
     bemenu
+    rio
     ffmpeg
-    obs-studio
     blender
+    legcord
+    zed-editor
     prismlauncher
-    opencode
-    neovide
-    lmms
-    android-studio
-    mpv
-    yt-dlp
     mullvad-vpn
-    mangohud
-    xwayland-satellite
-    brightnessctl
-    chromium
-    equibop
-    inputs.awww.packages.${pkgs.stdenv.hostPlatform.system}.awww
   ];
-  nixpkgs.config.allowUnfree = true;
-
-  services.mullvad-vpn.enable = true;
 
   security.wrappers = {
     ffmpeg = {
@@ -57,10 +25,7 @@ in
     };
   };
 
-  programs.niri = {
-    enable = true;
-  };
-
+  programs.niri.enable = true;
   services.kanata = {
     enable = true;
   };
@@ -77,4 +42,5 @@ in
     alsa.support32Bit = false;
     jack.enable = false;
   };
+
 }
