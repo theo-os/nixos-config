@@ -58,6 +58,9 @@
           nixd = {
             enable = true;
           };
+          jdtls = {
+            enable = true;
+          };
           clangd = {
             config = {
               cmd = [

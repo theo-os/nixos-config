@@ -14,6 +14,16 @@
     zed-editor
     prismlauncher
     mullvad-vpn
+    mpv
+    obs-studio
+  ];
+
+  nixpkgs.overlays = [
+    (final: previous: {
+      mpv = previous.mpv.override {
+        scripts = [ final.mpvScripts.mpv-discord ];
+      };
+    })
   ];
 
   security.wrappers = {
