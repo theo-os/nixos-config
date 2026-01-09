@@ -6,6 +6,7 @@
 }:
 {
   imports = [
+    inputs.home-manager.nixosModules.home-manager
     inputs.lix-module.nixosModules.default
     ./modules/networking.nix
     ./modules/neovim.nix
@@ -16,8 +17,12 @@
     inputs.nix-tree-rs.overlays.default
   ];
 
+  home-manager.useGlobalPkgs = true;
+  home-manager.useUserPackages = true;
+  home-manager.users.theo = import ./users/theo.nix;
+
   boot.kernelParams = [ "net.ifnames=-1" ];
-  boot.kernelPackages = lib.mkDefault pkgs.linuxPackages_latest;
+  boot.kernelPackages = lib.mkDefault pkgs.linuxPackages_testing;
   hardware.enableRedistributableFirmware = true;
 
   environment.sessionVariables.NIXOS_OZONE_WL = "1";
