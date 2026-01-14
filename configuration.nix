@@ -7,7 +7,6 @@
 {
   imports = [
     inputs.home-manager.nixosModules.home-manager
-    inputs.lix-module.nixosModules.default
     ./modules/networking.nix
     ./modules/neovim.nix
   ];
@@ -87,6 +86,7 @@
         "adbusers"
         "libvirtd"
       ];
+      shell = pkgs.nushell;
       openssh.authorizedKeys.keys = [
         "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIE0xE9o3tB6RkWRwbQTq1afsJ5uqJCaFlvyi8RvYcZAO"
       ];
@@ -106,7 +106,7 @@
   environment.systemPackages = with pkgs; [
     dnsmasq
     bat
-    brush
+    nushell
     gitoxide
     gitMinimal
     jujutsu
