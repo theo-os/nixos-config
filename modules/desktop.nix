@@ -1,5 +1,9 @@
-{ pkgs, ... }:
+{ inputs, pkgs, ... }:
 {
+  imports = [
+    inputs.xlibre-overlay.nixosModules.overlay-xlibre-xserver
+  ];
+
   hardware.graphics.enable = true;
   hardware.bluetooth.enable = true;
   hardware.bluetooth.powerOnBoot = true;
@@ -35,7 +39,11 @@
     };
   };
 
-  programs.niri.enable = true;
+  services.xserver.enable = true;
+  services.desktopManager.plasma6.enable = true;
+  services.displayManager.sddm.enable = true;
+  services.displayManager.sddm.wayland.enable = false;
+
   services.kanata = {
     enable = true;
   };
