@@ -87,12 +87,63 @@ impl App {
         // Resolve flake reference to store path if needed
         let resolved_path = Self::resolve_path(store_path).await?;
         
-        // Add root node
-        let root_node = graph.add_node(resolved_path.clone());
-        node_map.insert(resolved_path.clone(), root_node);
+        // Use nix path-info --json --recursive to get all dependencies at once
+        let output = Command::new("nix")
+            .args(["path-info", "--json", "--recursive", &resolved_path])
+            .output()
+            .await
+            .context("Failed to execute nix path-info")?;
         
-        // Build dependency graph recursively
-        Self::build_dependencies_recursive(&resolved_path, root_node, &mut graph, &mut node_map).await?;
+        if !output.status.success() {
+            anyhow::bail!("nix path-info failed: {}", String::from_utf8_lossy(&output.stderr));
+        }
+        
+        // Parse JSON output
+        let json_output = String::from_utf8_lossy(&output.stdout);
+        let path_infos: Vec<serde_json::Value> = serde_json::from_str(&json_output)
+            .context("Failed to parse nix path-info JSON output")?;
+        
+        // Build graph from path-info results
+        let mut root_node = None;
+        for path_info in &path_infos {
+            if let Some(path_obj) = path_info.as_object() {
+                let path = path_obj.get("path")
+                    .and_then(|v| v.as_str())
+                    .context("Missing 'path' field")?
+                    .to_string();
+                
+                // Add node for this path
+                let node = *node_map.entry(path.clone()).or_insert_with(|| {
+                    graph.add_node(path.clone())
+                });
+                
+                // Track root node
+                if path == resolved_path {
+                    root_node = Some(node);
+                }
+                
+                // Get references
+                if let Some(refs) = path_obj.get("references").and_then(|v| v.as_array()) {
+                    for ref_val in refs {
+                        if let Some(ref_path) = ref_val.as_str() {
+                            let ref_path = ref_path.to_string();
+                            if ref_path != path {
+                                let ref_node = *node_map.entry(ref_path.clone()).or_insert_with(|| {
+                                    graph.add_node(ref_path.clone())
+                                });
+                                
+                                // Add edge from this path to its reference
+                                if !graph.contains_edge(node, ref_node) {
+                                    graph.add_edge(node, ref_node, ());
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        let root_node = root_node.context("Root node not found in path-info results")?;
         
         // Build flat list for display
         let items = Self::build_items(&graph, root_node);
@@ -107,37 +158,6 @@ impl App {
             viewport_height: 20,
             loading: false,
             status_message: format!("Loaded {} dependencies", node_count),
-        })
-    }
-
-    fn build_dependencies_recursive<'a>(
-        path: &'a str,
-        node: NodeIndex,
-        graph: &'a mut DiGraph<String, ()>,
-        node_map: &'a mut HashMap<String, NodeIndex>,
-    ) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<()>> + 'a>> {
-        Box::pin(async move {
-            // Query dependencies for this path
-            if let Ok(deps) = Self::query_dependencies(path).await {
-                for dep in deps {
-                    // Skip if we've already seen this dependency
-                    let dep_node = if let Some(&existing_node) = node_map.get(&dep) {
-                        existing_node
-                    } else {
-                        let new_node = graph.add_node(dep.clone());
-                        node_map.insert(dep.clone(), new_node);
-                        // Recursively build dependencies for this new node
-                        Self::build_dependencies_recursive(&dep, new_node, graph, node_map).await?;
-                        new_node
-                    };
-                    
-                    // Add edge if it doesn't exist
-                    if !graph.contains_edge(node, dep_node) {
-                        graph.add_edge(node, dep_node, ());
-                    }
-                }
-            }
-            Ok(())
         })
     }
 
@@ -181,26 +201,6 @@ impl App {
         
         // Otherwise, assume it's already a store path
         Ok(path.to_string())
-    }
-
-    async fn query_dependencies(path: &str) -> Result<Vec<String>> {
-        // Try to query dependencies using nix-store
-        let output = Command::new("nix-store")
-            .args(["--query", "--references", path])
-            .output()
-            .await;
-        
-        match output {
-            Ok(out) if out.status.success() => {
-                let deps = String::from_utf8_lossy(&out.stdout)
-                    .lines()
-                    .filter(|line| !line.is_empty() && line != &path)
-                    .map(|s| s.to_string())
-                    .collect();
-                Ok(deps)
-            }
-            _ => Ok(Vec::new()),
-        }
     }
 
     fn build_items(graph: &DiGraph<String, ()>, node: NodeIndex) -> Vec<(String, usize)> {
@@ -391,12 +391,55 @@ async fn generate_svg(store_path: &str, output: &PathBuf) -> Result<()> {
     // Resolve flake reference to store path if needed
     let resolved_path = App::resolve_path(store_path).await?;
     
-    // Add root node
-    let root_node = graph.add_node(resolved_path.clone());
-    node_map.insert(resolved_path.clone(), root_node);
+    // Use nix path-info --json --recursive to get all dependencies
+    let cmd_output = Command::new("nix")
+        .args(["path-info", "--json", "--recursive", &resolved_path])
+        .output()
+        .await
+        .context("Failed to execute nix path-info")?;
     
-    // Build dependencies recursively
-    App::build_dependencies_recursive(&resolved_path, root_node, &mut graph, &mut node_map).await?;
+    if !cmd_output.status.success() {
+        anyhow::bail!("nix path-info failed: {}", String::from_utf8_lossy(&cmd_output.stderr));
+    }
+    
+    // Parse JSON output
+    let json_output = String::from_utf8_lossy(&cmd_output.stdout);
+    let path_infos: Vec<serde_json::Value> = serde_json::from_str(&json_output)
+        .context("Failed to parse nix path-info JSON output")?;
+    
+    // Build graph from path-info results
+    for path_info in &path_infos {
+        if let Some(path_obj) = path_info.as_object() {
+            let path = path_obj.get("path")
+                .and_then(|v| v.as_str())
+                .context("Missing 'path' field")?
+                .to_string();
+            
+            // Add node for this path
+            let node = *node_map.entry(path.clone()).or_insert_with(|| {
+                graph.add_node(path.clone())
+            });
+            
+            // Get references
+            if let Some(refs) = path_obj.get("references").and_then(|v| v.as_array()) {
+                for ref_val in refs {
+                    if let Some(ref_path) = ref_val.as_str() {
+                        let ref_path = ref_path.to_string();
+                        if ref_path != path {
+                            let ref_node = *node_map.entry(ref_path.clone()).or_insert_with(|| {
+                                graph.add_node(ref_path.clone())
+                            });
+                            
+                            // Add edge from this path to its reference
+                            if !graph.contains_edge(node, ref_node) {
+                                graph.add_edge(node, ref_node, ());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
     
     // Create SVG document
     let width = 800;
