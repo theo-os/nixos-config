@@ -98,6 +98,22 @@
           { pkgs, ... }:
           {
             formatter = pkgs.nixfmt;
+            
+            devShells.default = pkgs.mkShell {
+              buildInputs = with pkgs; [
+                rustc
+                cargo
+                rustfmt
+                clippy
+                pkg-config
+                openssl
+              ];
+              
+              shellHook = ''
+                echo "Nix development shell"
+                echo "Tools available: rustc, cargo, rustfmt, clippy"
+              '';
+            };
           };
       }
     );

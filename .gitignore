@@ -5,3 +5,7 @@ secrets.json
 /result-*
 /result
 *.qcow2
+# Rust
+/tools/**/target/
+/tools/**/*.lock
+Cargo.lock

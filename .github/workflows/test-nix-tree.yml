@@ -1,0 +1,43 @@
+name: Test nix-tree
+
+on:
+  push:
+    paths:
+      - 'tools/nix-tree/**'
+      - '.github/workflows/test-nix-tree.yml'
+  pull_request:
+    paths:
+      - 'tools/nix-tree/**'
+      - '.github/workflows/test-nix-tree.yml'
+
+jobs:
+  test-nix-tree:
+    runs-on: ubuntu-latest
+    container:
+      image: docker.io/nixos/nix:latest
+      options: --user root
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure Nix
+        run: |
+          mkdir -p /etc/nix
+          echo "experimental-features = nix-command flakes" >> /etc/nix/nix.conf
+
+      - name: Build nix-tree
+        run: |
+          cd tools/nix-tree
+          nix develop ../../#default --command cargo build --release
+
+      - name: Test nix-tree help
+        run: |
+          cd tools/nix-tree
+          nix develop ../../#default --command cargo run -- --help
+
+      - name: Test nix-tree svg command
+        run: |
+          cd tools/nix-tree
+          nix develop ../../#default --command cargo run -- svg /nix/store --output test-output.svg
+          test -f test-output.svg && echo "SVG file created successfully"
