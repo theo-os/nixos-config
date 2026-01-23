@@ -64,8 +64,9 @@ struct App {
 
 impl App {
     fn new_loading() -> Self {
-        let graph = DiGraph::new();
-        let root_node = graph.node_indices().next().unwrap_or(NodeIndex::new(0));
+        let mut graph = DiGraph::new();
+        // Create a dummy root node for the loading state
+        let root_node = graph.add_node("Loading...".to_string());
         
         App {
             graph,
@@ -341,49 +342,14 @@ async fn run_tui(store_path: &str) -> Result<()> {
     app.render(&mut terminal)?;
     
     // Build the dependency tree
-    let store_path_owned = store_path.to_string();
-    let build_result = tokio::task::spawn_blocking(move || {
-        let rt = tokio::runtime::Runtime::new().unwrap();
-        rt.block_on(App::build_from_path(&store_path_owned))
-    });
-
-    // Wait for build to complete with periodic renders
-    loop {
-        app.render(&mut terminal)?;
-        
-        // Check if the build is complete
-        if build_result.is_finished() {
-            match build_result.await {
-                Ok(Ok(built_app)) => {
-                    app = built_app;
-                    break;
-                }
-                Ok(Err(e)) => {
-                    app.loading = false;
-                    app.status_message = format!("Error: {}", e);
-                    break;
-                }
-                Err(e) => {
-                    app.loading = false;
-                    app.status_message = format!("Task error: {}", e);
-                    break;
-                }
-            }
+    match App::build_from_path(store_path).await {
+        Ok(built_app) => {
+            app = built_app;
         }
-        
-        // Non-blocking event polling
-        if poll(Duration::from_millis(100))? {
-            if let Event::Key(KeyEvent { code, .. }) = event::read()? {
-                if let KeyCode::Char('q') = code {
-                    // Restore terminal
-                    disable_raw_mode()?;
-                    execute!(terminal.backend_mut(), LeaveAlternateScreen)?;
-                    return Ok(());
-                }
-            }
+        Err(e) => {
+            app.loading = false;
+            app.status_message = format!("Error: {}", e);
         }
-        
-        tokio::time::sleep(Duration::from_millis(50)).await;
     }
 
     // Run main event loop
