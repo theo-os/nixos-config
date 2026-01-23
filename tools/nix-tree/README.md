@@ -7,10 +7,10 @@ A command-line tool for visualizing Nix store dependencies.
 - Interactive terminal UI (TUI) for browsing dependency trees
 - SVG export for dependency graphs
 - Built with:
-  - `harmonia-store-core` for Nix store access
   - `petgraph` for graph data structures
   - `ratatui` for terminal UI
   - `svg` for graph rendering
+  - Queries Nix store via `nix-store` command
 
 ## Usage
 
