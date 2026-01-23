@@ -3,6 +3,7 @@
   ...
 }:
 {
+  # TODO: add niri configuration: https://github.com/nix-community/home-manager/pull/8575
   home.username = "theo";
   home.homeDirectory = "/home/theo";
   home.stateVersion = lib.trivial.release;
@@ -29,6 +30,9 @@
           "upstream"
           "origin"
         ];
+      };
+      fsmonitor = {
+        backend = "watchman";
       };
       templates = {
         commit_trailers = ''
