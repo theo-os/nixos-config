@@ -1,7 +1,6 @@
-{ inputs, pkgs, ... }:
+{ pkgs, ... }:
 {
   imports = [
-    inputs.xlibre-overlay.nixosModules.overlay-xlibre-xserver
   ];
 
   hardware.graphics.enable = true;
@@ -39,10 +38,7 @@
     };
   };
 
-  services.xserver.enable = true;
-  services.desktopManager.plasma6.enable = true;
-  services.displayManager.sddm.enable = true;
-  services.displayManager.sddm.wayland.enable = false;
+  programs.niri.enable = true;
 
   services.kanata = {
     enable = true;

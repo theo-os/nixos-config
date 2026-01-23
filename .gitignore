@@ -4,3 +4,4 @@
 secrets.json
 /result-*
 /result
+*.qcow2

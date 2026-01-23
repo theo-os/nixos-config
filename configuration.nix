@@ -13,7 +13,6 @@
 
   nix.channel.enable = false;
   nixpkgs.overlays = [
-    inputs.nix-tree-rs.overlays.default
   ];
 
   home-manager.useGlobalPkgs = true;
@@ -73,23 +72,26 @@
     LC_TIME = "en_US.UTF-8";
   };
 
-  users.users = {
-    root.hashedPassword = "!";
+  users = {
+    mutableUsers = false;
+    users = {
+      root.hashedPassword = "!";
 
-    theo = {
-      isNormalUser = true;
-      description = "Theo";
-      extraGroups = [
-        "networkmanager"
-        "wheel"
-        "kvm"
-        "adbusers"
-        "libvirtd"
-      ];
-      shell = pkgs.nushell;
-      openssh.authorizedKeys.keys = [
-        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIE0xE9o3tB6RkWRwbQTq1afsJ5uqJCaFlvyi8RvYcZAO"
-      ];
+      theo = {
+        isNormalUser = true;
+        description = "Theo";
+        extraGroups = [
+          "networkmanager"
+          "wheel"
+          "kvm"
+          "adbusers"
+          "libvirtd"
+        ];
+        shell = pkgs.nushell;
+        openssh.authorizedKeys.keys = [
+          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIE0xE9o3tB6RkWRwbQTq1afsJ5uqJCaFlvyi8RvYcZAO"
+        ];
+      };
     };
   };
 
@@ -131,7 +133,7 @@
     watchman
     wireguard-tools
     qemu
-    nix-tree
+    watchman
   ];
 
   services.mullvad-vpn.enable = true;
