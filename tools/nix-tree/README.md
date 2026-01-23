@@ -6,6 +6,7 @@ A command-line tool for visualizing Nix store dependencies.
 
 - Interactive terminal UI (TUI) for browsing dependency trees
 - SVG export for dependency graphs
+- **Supports both store paths and flake references** (e.g., `.#nixosConfigurations.iso`)
 - Built with:
   - `petgraph` for graph data structures
   - `ratatui` for terminal UI
@@ -16,8 +17,15 @@ A command-line tool for visualizing Nix store dependencies.
 
 ### Interactive TUI Mode
 
+View dependencies of a store path:
 ```bash
 nix-tree show /nix/store/path-to-package
+```
+
+Or use a flake reference:
+```bash
+nix-tree show .#nixosConfigurations.iso.config.system.build.vm
+nix-tree show .#packages.x86_64-linux.hello
 ```
 
 Navigate with:
@@ -27,8 +35,14 @@ Navigate with:
 
 ### SVG Export
 
+Export to SVG using a store path:
 ```bash
 nix-tree svg /nix/store/path-to-package --output graph.svg
+```
+
+Or using a flake reference:
+```bash
+nix-tree svg .#nixosConfigurations.iso.config.system.build.vm --output iso-deps.svg
 ```
 
 ## Building

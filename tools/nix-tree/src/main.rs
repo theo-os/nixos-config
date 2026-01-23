@@ -35,13 +35,13 @@ struct Cli {
 enum Commands {
     /// Show interactive TUI tree view
     Show {
-        /// Store path to visualize
+        /// Store path or flake reference to visualize (e.g., /nix/store/... or .#nixosConfigurations.iso)
         #[arg(value_name = "PATH")]
         path: String,
     },
     /// Export dependency graph as SVG
     Svg {
-        /// Store path to visualize
+        /// Store path or flake reference to visualize (e.g., /nix/store/... or .#nixosConfigurations.iso)
         #[arg(value_name = "PATH")]
         path: String,
         /// Output SVG file path
@@ -64,12 +64,15 @@ impl App {
         let mut graph = DiGraph::new();
         let mut node_map = HashMap::new();
         
+        // Resolve flake reference to store path if needed
+        let resolved_path = Self::resolve_path(store_path)?;
+        
         // Add root node
-        let root_node = graph.add_node(store_path.to_string());
-        node_map.insert(store_path.to_string(), root_node);
+        let root_node = graph.add_node(resolved_path.clone());
+        node_map.insert(resolved_path.clone(), root_node);
         
         // Build dependency graph using nix-store if available
-        if let Ok(deps) = Self::query_dependencies(store_path) {
+        if let Ok(deps) = Self::query_dependencies(&resolved_path) {
             for dep in deps {
                 let dep_node = *node_map.entry(dep.clone()).or_insert_with(|| graph.add_node(dep));
                 graph.add_edge(root_node, dep_node, ());
@@ -87,6 +90,46 @@ impl App {
             scroll_offset: 0,
             viewport_height: 20, // Will be updated dynamically during render
         })
+    }
+
+    fn resolve_path(path: &str) -> Result<String> {
+        // If it looks like a flake reference (contains # or starts with .), resolve it
+        if path.contains('#') || path.starts_with('.') {
+            // Try to build/evaluate the flake reference to get the store path
+            let output = Command::new("nix")
+                .args(["build", "--no-link", "--print-out-paths", path])
+                .output()
+                .context("Failed to execute nix build")?;
+            
+            if output.status.success() {
+                let store_path = String::from_utf8_lossy(&output.stdout)
+                    .trim()
+                    .to_string();
+                if !store_path.is_empty() {
+                    return Ok(store_path);
+                }
+            }
+            
+            // If nix build fails, try with nix eval
+            let output = Command::new("nix")
+                .args(["eval", "--raw", path])
+                .output()
+                .context("Failed to execute nix eval")?;
+            
+            if output.status.success() {
+                let store_path = String::from_utf8_lossy(&output.stdout)
+                    .trim()
+                    .to_string();
+                if !store_path.is_empty() && store_path.starts_with("/nix/store") {
+                    return Ok(store_path);
+                }
+            }
+            
+            anyhow::bail!("Failed to resolve flake reference: {}", path);
+        }
+        
+        // Otherwise, assume it's already a store path
+        Ok(path.to_string())
     }
 
     fn query_dependencies(path: &str) -> Result<Vec<String>> {
@@ -252,12 +295,15 @@ fn generate_svg(store_path: &str, output: &PathBuf) -> Result<()> {
     let mut graph = DiGraph::new();
     let mut node_map = HashMap::new();
     
+    // Resolve flake reference to store path if needed
+    let resolved_path = App::resolve_path(store_path)?;
+    
     // Add root node
-    let root_node = graph.add_node(store_path.to_string());
-    node_map.insert(store_path.to_string(), root_node);
+    let root_node = graph.add_node(resolved_path.clone());
+    node_map.insert(resolved_path.clone(), root_node);
     
     // Try to query dependencies
-    if let Ok(deps) = App::query_dependencies(store_path) {
+    if let Ok(deps) = App::query_dependencies(&resolved_path) {
         for dep in deps {
             let dep_node = *node_map.entry(dep.clone()).or_insert_with(|| graph.add_node(dep));
             graph.add_edge(root_node, dep_node, ());
