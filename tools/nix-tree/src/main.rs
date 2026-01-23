@@ -56,6 +56,7 @@ struct App {
     selected: usize,
     items: Vec<(String, usize)>, // (path, depth)
     scroll_offset: usize,
+    viewport_height: usize,
 }
 
 impl App {
@@ -84,6 +85,7 @@ impl App {
             selected: 0,
             items,
             scroll_offset: 0,
+            viewport_height: 20, // Will be updated dynamically during render
         })
     }
 
@@ -133,13 +135,15 @@ impl App {
         }
     }
 
-    fn render(&self, terminal: &mut Terminal<CrosstermBackend<io::Stdout>>) -> Result<()> {
+    fn render(&mut self, terminal: &mut Terminal<CrosstermBackend<io::Stdout>>) -> Result<()> {
         terminal.draw(|f| {
             let chunks = Layout::default()
                 .constraints([Constraint::Percentage(80), Constraint::Percentage(20)].as_ref())
                 .split(f.area());
 
             let visible_height = chunks[0].height as usize - 2; // Account for borders
+            self.viewport_height = visible_height; // Update viewport height dynamically
+            
             let start = self.scroll_offset;
             let end = (start + visible_height).min(self.items.len());
 
@@ -205,10 +209,8 @@ impl App {
     fn move_down(&mut self) {
         if self.selected < self.items.len().saturating_sub(1) {
             self.selected += 1;
-            // Assume a reasonable viewport height
-            let viewport_height = 20;
-            if self.selected >= self.scroll_offset + viewport_height {
-                self.scroll_offset = self.selected - viewport_height + 1;
+            if self.selected >= self.scroll_offset + self.viewport_height {
+                self.scroll_offset = self.selected - self.viewport_height + 1;
             }
         }
     }
