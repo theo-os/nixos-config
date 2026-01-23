@@ -1,7 +1,7 @@
 use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
 use crossterm::{
-    event::{self, Event, KeyCode, KeyEvent},
+    event::{self, Event, KeyCode, KeyEvent, poll},
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
@@ -21,7 +21,8 @@ use ratatui::{
 use std::collections::HashMap;
 use std::io;
 use std::path::PathBuf;
-use std::process::Command;
+use std::time::Duration;
+use tokio::process::Command;
 
 #[derive(Parser)]
 #[command(name = "nix-tree")]
@@ -57,30 +58,44 @@ struct App {
     items: Vec<(String, usize)>, // (path, depth)
     scroll_offset: usize,
     viewport_height: usize,
+    loading: bool,
+    status_message: String,
 }
 
 impl App {
-    fn new(store_path: &str) -> Result<Self> {
+    fn new_loading() -> Self {
+        let graph = DiGraph::new();
+        let root_node = graph.node_indices().next().unwrap_or(NodeIndex::new(0));
+        
+        App {
+            graph,
+            root_node,
+            selected: 0,
+            items: vec![],
+            scroll_offset: 0,
+            viewport_height: 20,
+            loading: true,
+            status_message: "Loading dependencies...".to_string(),
+        }
+    }
+
+    async fn build_from_path(store_path: &str) -> Result<Self> {
         let mut graph = DiGraph::new();
         let mut node_map = HashMap::new();
         
         // Resolve flake reference to store path if needed
-        let resolved_path = Self::resolve_path(store_path)?;
+        let resolved_path = Self::resolve_path(store_path).await?;
         
         // Add root node
         let root_node = graph.add_node(resolved_path.clone());
         node_map.insert(resolved_path.clone(), root_node);
         
-        // Build dependency graph using nix-store if available
-        if let Ok(deps) = Self::query_dependencies(&resolved_path) {
-            for dep in deps {
-                let dep_node = *node_map.entry(dep.clone()).or_insert_with(|| graph.add_node(dep));
-                graph.add_edge(root_node, dep_node, ());
-            }
-        }
+        // Build dependency graph recursively
+        Self::build_dependencies_recursive(&resolved_path, root_node, &mut graph, &mut node_map).await?;
         
         // Build flat list for display
         let items = Self::build_items(&graph, root_node);
+        let node_count = graph.node_count();
         
         Ok(App {
             graph,
@@ -88,17 +103,51 @@ impl App {
             selected: 0,
             items,
             scroll_offset: 0,
-            viewport_height: 20, // Will be updated dynamically during render
+            viewport_height: 20,
+            loading: false,
+            status_message: format!("Loaded {} dependencies", node_count),
         })
     }
 
-    fn resolve_path(path: &str) -> Result<String> {
+    fn build_dependencies_recursive<'a>(
+        path: &'a str,
+        node: NodeIndex,
+        graph: &'a mut DiGraph<String, ()>,
+        node_map: &'a mut HashMap<String, NodeIndex>,
+    ) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<()>> + 'a>> {
+        Box::pin(async move {
+            // Query dependencies for this path
+            if let Ok(deps) = Self::query_dependencies(path).await {
+                for dep in deps {
+                    // Skip if we've already seen this dependency
+                    let dep_node = if let Some(&existing_node) = node_map.get(&dep) {
+                        existing_node
+                    } else {
+                        let new_node = graph.add_node(dep.clone());
+                        node_map.insert(dep.clone(), new_node);
+                        // Recursively build dependencies for this new node
+                        Self::build_dependencies_recursive(&dep, new_node, graph, node_map).await?;
+                        new_node
+                    };
+                    
+                    // Add edge if it doesn't exist
+                    if !graph.contains_edge(node, dep_node) {
+                        graph.add_edge(node, dep_node, ());
+                    }
+                }
+            }
+            Ok(())
+        })
+    }
+
+    async fn resolve_path(path: &str) -> Result<String> {
         // If it looks like a flake reference (contains # or starts with .), resolve it
         if path.contains('#') || path.starts_with('.') {
             // Try to build/evaluate the flake reference to get the store path
             let output = Command::new("nix")
                 .args(["build", "--no-link", "--print-out-paths", path])
                 .output()
+                .await
                 .context("Failed to execute nix build")?;
             
             if output.status.success() {
@@ -114,6 +163,7 @@ impl App {
             let output = Command::new("nix")
                 .args(["eval", "--raw", path])
                 .output()
+                .await
                 .context("Failed to execute nix eval")?;
             
             if output.status.success() {
@@ -132,11 +182,12 @@ impl App {
         Ok(path.to_string())
     }
 
-    fn query_dependencies(path: &str) -> Result<Vec<String>> {
+    async fn query_dependencies(path: &str) -> Result<Vec<String>> {
         // Try to query dependencies using nix-store
         let output = Command::new("nix-store")
             .args(["--query", "--references", path])
-            .output();
+            .output()
+            .await;
         
         match output {
             Ok(out) if out.status.success() => {
@@ -184,20 +235,35 @@ impl App {
                 .constraints([Constraint::Percentage(80), Constraint::Percentage(20)].as_ref())
                 .split(f.area());
 
-            let visible_height = chunks[0].height as usize - 2; // Account for borders
-            self.viewport_height = visible_height; // Update viewport height dynamically
-            
-            let start = self.scroll_offset;
-            let end = (start + visible_height).min(self.items.len());
+            if self.loading {
+                // Show loading message
+                let loading_text = Paragraph::new(vec![
+                    Line::from(""),
+                    Line::from(Span::styled(
+                        &self.status_message,
+                        Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD),
+                    )),
+                    Line::from(""),
+                    Line::from("Please wait..."),
+                ])
+                .block(Block::default().title("Loading").borders(Borders::ALL));
+                
+                f.render_widget(loading_text, chunks[0]);
+            } else {
+                let visible_height = chunks[0].height as usize - 2; // Account for borders
+                self.viewport_height = visible_height; // Update viewport height dynamically
+                
+                let start = self.scroll_offset;
+                let end = (start + visible_height).min(self.items.len());
 
-            // Create list items with indentation based on depth
-            let list_items: Vec<ListItem> = self
-                .items
-                .iter()
-                .enumerate()
-                .skip(start)
-                .take(end - start)
-                .map(|(idx, (path, depth))| {
+                // Create list items with indentation based on depth
+                let list_items: Vec<ListItem> = self
+                    .items
+                    .iter()
+                    .enumerate()
+                    .skip(start)
+                    .take(end - start)
+                    .map(|(idx, (path, depth))| {
                     let indent = "  ".repeat(*depth);
                     let style = if idx == self.selected {
                         Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD)
@@ -217,14 +283,15 @@ impl App {
                 })
                 .collect();
 
-            let title = format!("Nix Store Dependencies ({} items)", self.items.len());
-            let list = List::new(list_items).block(
-                Block::default()
-                    .title(title)
-                    .borders(Borders::ALL),
-            );
+                let title = format!("Nix Store Dependencies ({} items)", self.items.len());
+                let list = List::new(list_items).block(
+                    Block::default()
+                        .title(title)
+                        .borders(Borders::ALL),
+                );
 
-            f.render_widget(list, chunks[0]);
+                f.render_widget(list, chunks[0]);
+            }
 
             let help_text = Paragraph::new(vec![
                 Line::from("Controls:"),
@@ -259,7 +326,7 @@ impl App {
     }
 }
 
-fn run_tui(store_path: &str) -> Result<()> {
+async fn run_tui(store_path: &str) -> Result<()> {
     // Setup terminal
     enable_raw_mode()?;
     let mut stdout = io::stdout();
@@ -267,19 +334,79 @@ fn run_tui(store_path: &str) -> Result<()> {
     let backend = CrosstermBackend::new(stdout);
     let mut terminal = Terminal::new(backend)?;
 
-    // Create app
-    let mut app = App::new(store_path)?;
+    // Create app with loading state
+    let mut app = App::new_loading();
+    
+    // Render loading screen initially
+    app.render(&mut terminal)?;
+    
+    // Build the dependency tree
+    let store_path_owned = store_path.to_string();
+    let build_result = tokio::task::spawn_blocking(move || {
+        let rt = tokio::runtime::Runtime::new().unwrap();
+        rt.block_on(App::build_from_path(&store_path_owned))
+    });
 
-    // Run event loop
+    // Wait for build to complete with periodic renders
+    loop {
+        app.render(&mut terminal)?;
+        
+        // Check if the build is complete
+        if build_result.is_finished() {
+            match build_result.await {
+                Ok(Ok(built_app)) => {
+                    app = built_app;
+                    break;
+                }
+                Ok(Err(e)) => {
+                    app.loading = false;
+                    app.status_message = format!("Error: {}", e);
+                    break;
+                }
+                Err(e) => {
+                    app.loading = false;
+                    app.status_message = format!("Task error: {}", e);
+                    break;
+                }
+            }
+        }
+        
+        // Non-blocking event polling
+        if poll(Duration::from_millis(100))? {
+            if let Event::Key(KeyEvent { code, .. }) = event::read()? {
+                if let KeyCode::Char('q') = code {
+                    // Restore terminal
+                    disable_raw_mode()?;
+                    execute!(terminal.backend_mut(), LeaveAlternateScreen)?;
+                    return Ok(());
+                }
+            }
+        }
+        
+        tokio::time::sleep(Duration::from_millis(50)).await;
+    }
+
+    // Run main event loop
     loop {
         app.render(&mut terminal)?;
 
-        if let Event::Key(KeyEvent { code, .. }) = event::read()? {
-            match code {
-                KeyCode::Char('q') => break,
-                KeyCode::Up | KeyCode::Char('k') => app.move_up(),
-                KeyCode::Down | KeyCode::Char('j') => app.move_down(),
-                _ => {}
+        // Non-blocking event polling
+        if poll(Duration::from_millis(100))? {
+            if let Event::Key(KeyEvent { code, .. }) = event::read()? {
+                match code {
+                    KeyCode::Char('q') => break,
+                    KeyCode::Up | KeyCode::Char('k') => {
+                        if !app.loading {
+                            app.move_up();
+                        }
+                    }
+                    KeyCode::Down | KeyCode::Char('j') => {
+                        if !app.loading {
+                            app.move_down();
+                        }
+                    }
+                    _ => {}
+                }
             }
         }
     }
@@ -291,24 +418,19 @@ fn run_tui(store_path: &str) -> Result<()> {
     Ok(())
 }
 
-fn generate_svg(store_path: &str, output: &PathBuf) -> Result<()> {
+async fn generate_svg(store_path: &str, output: &PathBuf) -> Result<()> {
     let mut graph = DiGraph::new();
     let mut node_map = HashMap::new();
     
     // Resolve flake reference to store path if needed
-    let resolved_path = App::resolve_path(store_path)?;
+    let resolved_path = App::resolve_path(store_path).await?;
     
     // Add root node
     let root_node = graph.add_node(resolved_path.clone());
     node_map.insert(resolved_path.clone(), root_node);
     
-    // Try to query dependencies
-    if let Ok(deps) = App::query_dependencies(&resolved_path) {
-        for dep in deps {
-            let dep_node = *node_map.entry(dep.clone()).or_insert_with(|| graph.add_node(dep));
-            graph.add_edge(root_node, dep_node, ());
-        }
-    }
+    // Build dependencies recursively
+    App::build_dependencies_recursive(&resolved_path, root_node, &mut graph, &mut node_map).await?;
     
     // Create SVG document
     let width = 800;
@@ -391,15 +513,16 @@ fn generate_svg(store_path: &str, output: &PathBuf) -> Result<()> {
     Ok(())
 }
 
-fn main() -> Result<()> {
+#[tokio::main]
+async fn main() -> Result<()> {
     let cli = Cli::parse();
 
     match cli.command {
         Commands::Show { path } => {
-            run_tui(&path)?;
+            run_tui(&path).await?;
         }
         Commands::Svg { path, output } => {
-            generate_svg(&path, &output)?;
+            generate_svg(&path, &output).await?;
         }
     }
 
