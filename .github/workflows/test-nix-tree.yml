@@ -13,6 +13,8 @@ on:
 jobs:
   test-nix-tree:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     container:
       image: docker.io/nixos/nix:latest
       options: --user root
