@@ -24,7 +24,7 @@
   boot.extraModulePackages = [ ];
 
   fileSystems."/" = {
-    device = "/dev/disk/by-uuid/974f18f0-9e3e-4f06-9242-065e9801e857";
+    device = "/dev/disk/by-uuid/d5dcae41-5231-4111-9f01-7ee479637814";
     fsType = "btrfs";
     options = [
       "compress=zstd:6"
@@ -33,7 +33,7 @@
   };
 
   fileSystems."/boot" = {
-    device = "/dev/disk/by-uuid/1B41-4E87";
+    device = "/dev/disk/by-uuid/5F84-AE7C";
     fsType = "vfat";
     options = [
       "fmask=0077"
@@ -45,6 +45,6 @@
 
   networking.useDHCP = lib.mkDefault true;
 
-  nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
+  nixpkgs.localSystem.system = "x86_64-linux";
   hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 }

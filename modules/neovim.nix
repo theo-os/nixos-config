@@ -38,6 +38,7 @@
         settings.input.enable = true;
       };
       mini-files.enable = true;
+      mini-pick.enable = true;
       lsp = {
         enable = true;
         servers = {
@@ -83,9 +84,9 @@
             enable = true;
           };
 
-          pyrefly = {
-            enable = true;
-          };
+          ruff.enable = true;
+
+          pyrefly.enable = true;
 
           rust_analyzer = {
             enable = true;
