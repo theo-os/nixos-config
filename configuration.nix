@@ -12,8 +12,6 @@
   ];
 
   nix.channel.enable = false;
-  nixpkgs.overlays = [
-  ];
 
   home-manager.useGlobalPkgs = true;
   home-manager.useUserPackages = true;
@@ -23,12 +21,18 @@
   boot.kernelPackages = lib.mkDefault pkgs.linuxPackages_testing;
   hardware.enableRedistributableFirmware = true;
 
+  virtualisation.libvirtd.enable = true;
+
   environment.sessionVariables.NIXOS_OZONE_WL = "1";
 
   nix.settings = {
     experimental-features = [
       "nix-command"
       "flakes"
+      "blake3-hashes"
+      "ca-derivations"
+      "dynamic-derivations"
+      "recursive-nix"
     ];
     trusted-users = [
       "root"
@@ -72,6 +76,8 @@
     LC_TIME = "en_US.UTF-8";
   };
 
+  programs.zsh.enable = true;
+
   users = {
     mutableUsers = false;
     users = {
@@ -87,7 +93,7 @@
           "adbusers"
           "libvirtd"
         ];
-        shell = pkgs.nushell;
+        shell = pkgs.zsh;
         openssh.authorizedKeys.keys = [
           "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIE0xE9o3tB6RkWRwbQTq1afsJ5uqJCaFlvyi8RvYcZAO"
         ];
@@ -108,7 +114,7 @@
   environment.systemPackages = with pkgs; [
     dnsmasq
     bat
-    nushell
+    brush
     gitoxide
     gitMinimal
     jujutsu
@@ -134,6 +140,13 @@
     wireguard-tools
     qemu
     watchman
+    (llama-cpp-vulkan.overrideAttrs (old: {
+      cmakeFlags = old.cmakeFlags ++ [
+        "-DLLAMA_BUILD_EXAMPLES=ON"
+        "-DGGML_NATIVE=ON"
+      ];
+    }))
+    gemini-cli-bin
   ];
 
   services.mullvad-vpn.enable = true;

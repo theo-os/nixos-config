@@ -1,5 +1,6 @@
 {
   lib,
+  pkgs,
   ...
 }:
 {
@@ -41,5 +42,19 @@
         '';
       };
     };
+  };
+
+  programs.zsh.enable = true;
+  home.packages = with pkgs; [
+    starship
+  ];
+
+  programs.starship = {
+    enable = true;
+    enableZshIntegration = true;
+  };
+  programs.zoxide = {
+    enable = true;
+    enableZshIntegration = true;
   };
 }

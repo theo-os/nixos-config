@@ -14,5 +14,6 @@
     firewall.allowedUDPPorts = [
       443
     ];
+    nftables.enable = true;
   };
 }

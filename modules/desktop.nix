@@ -9,6 +9,7 @@
   environment.systemPackages = with pkgs; [
     firefox
     wl-clipboard
+    mako
     bemenu
     rio
     ffmpeg
@@ -20,6 +21,7 @@
     mpv
     obs-studio
   ];
+  programs.virt-manager.enable = true;
 
   nixpkgs.overlays = [
     (final: previous: {
