@@ -16,8 +16,6 @@
     blender
     legcord
     zed-editor
-    prismlauncher
-    mullvad-vpn
     mpv
     obs-studio
   ];

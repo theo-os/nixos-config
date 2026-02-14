@@ -7,7 +7,7 @@
   imports = [
     ../modules/desktop.nix
   ];
-  nix.settings.max-jobs = 6;
+  nix.settings.max-jobs = 12;
 
   boot.initrd.availableKernelModules = [
     "ehci_pci"
@@ -24,16 +24,16 @@
   boot.extraModulePackages = [ ];
 
   fileSystems."/" = {
-    device = "/dev/disk/by-uuid/d5dcae41-5231-4111-9f01-7ee479637814";
-    fsType = "btrfs";
+    device = "/dev/disk/by-uuid/b9685104-b8bf-4bf7-9919-d161f56f484f";
+    fsType = "bcachefs";
     options = [
-      "compress=zstd:6"
+      "compress=zstd:9"
       "noatime"
     ];
   };
 
   fileSystems."/boot" = {
-    device = "/dev/disk/by-uuid/5F84-AE7C";
+    device = "/dev/disk/by-uuid/977D-0452";
     fsType = "vfat";
     options = [
       "fmask=0077"
