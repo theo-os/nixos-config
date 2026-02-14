@@ -18,7 +18,7 @@
   home-manager.users.theo = import ./users/theo.nix;
 
   boot.kernelParams = [ "net.ifnames=-1" ];
-  boot.kernelPackages = lib.mkDefault pkgs.linuxPackages_testing;
+  boot.kernelPackages = lib.mkDefault pkgs.linuxPackages_latest;
   hardware.enableRedistributableFirmware = true;
 
   virtualisation.libvirtd.enable = true;
@@ -79,10 +79,7 @@
   programs.zsh.enable = true;
 
   users = {
-    mutableUsers = false;
     users = {
-      root.hashedPassword = "!";
-
       theo = {
         isNormalUser = true;
         description = "Theo";
@@ -140,12 +137,6 @@
     wireguard-tools
     qemu
     watchman
-    (llama-cpp-vulkan.overrideAttrs (old: {
-      cmakeFlags = old.cmakeFlags ++ [
-        "-DLLAMA_BUILD_EXAMPLES=ON"
-        "-DGGML_NATIVE=ON"
-      ];
-    }))
     gemini-cli-bin
   ];
 
