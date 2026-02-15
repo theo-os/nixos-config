@@ -8,10 +8,12 @@
   imports = [
     inputs.home-manager.nixosModules.home-manager
     ./modules/networking.nix
-    ./modules/neovim.nix
   ];
 
   nix.channel.enable = false;
+  nixpkgs.overlays = [
+    (import ./overlay)
+  ];
 
   home-manager.useGlobalPkgs = true;
   home-manager.useUserPackages = true;
@@ -76,8 +78,6 @@
     LC_TIME = "en_US.UTF-8";
   };
 
-  programs.zsh.enable = true;
-
   users = {
     users = {
       theo = {
@@ -90,7 +90,7 @@
           "adbusers"
           "libvirtd"
         ];
-        shell = pkgs.zsh;
+        shell = pkgs.nushell;
         openssh.authorizedKeys.keys = [
           "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIE0xE9o3tB6RkWRwbQTq1afsJ5uqJCaFlvyi8RvYcZAO"
         ];
@@ -138,6 +138,13 @@
     qemu
     watchman
     gemini-cli-bin
+    helix
+    (llama-cpp-vulkan.overrideAttrs (old: {
+      cmakeFlags = old.cmakeFlags ++ [
+        "-DLLAMA_BUILD_EXAMPLES=ON"
+        "-DGGML_NATIVE=ON"
+      ];
+    }))
   ];
 
   services.mullvad-vpn.enable = true;
