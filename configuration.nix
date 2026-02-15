@@ -130,21 +130,14 @@
     iw
     nixd
     libarchive
-    uutils-coreutils-noprefix
-    libarchive
-    uutils-coreutils-noprefix
     watchman
     wireguard-tools
     qemu
     watchman
     gemini-cli-bin
     helix
-    (llama-cpp-vulkan.overrideAttrs (old: {
-      cmakeFlags = old.cmakeFlags ++ [
-        "-DLLAMA_BUILD_EXAMPLES=ON"
-        "-DGGML_NATIVE=ON"
-      ];
-    }))
+    llama-cpp
+    nix-output-monitor
   ];
 
   services.mullvad-vpn.enable = true;
