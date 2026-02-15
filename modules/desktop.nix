@@ -18,6 +18,7 @@
     zed-editor
     mpv
     obs-studio
+    kdePackages.kdenlive
   ];
   programs.virt-manager.enable = true;
 
