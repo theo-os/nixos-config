@@ -26,6 +26,7 @@
   virtualisation.libvirtd.enable = true;
 
   environment.sessionVariables.NIXOS_OZONE_WL = "1";
+  environment.sessionVariables.EDITOR = "hx";
 
   nix.settings = {
     experimental-features = [

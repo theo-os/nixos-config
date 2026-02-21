@@ -9,6 +9,7 @@
   home.homeDirectory = "/home/theo";
   home.stateVersion = lib.trivial.release;
 
+  # Based on https://github.com/thoughtpolice/a/blob/canon/tilde/aseipp/dotfiles/jj/config.toml
   programs.jujutsu = {
     enable = true;
     settings = {
@@ -38,13 +39,29 @@
         "wip()" = "description(glob-i:\"wip:*\") | description(glob-i:\"[[]WIP[]]*\")";
         "private()" = "description(glob-i:\"private:*\") | description(glob-i:\"[[]PRIVATE[]]*\")";
         "blacklist()" = "wip() | private()";
+        "stack()" = "stack(@)";
+        "stack(x)" = "stack(x, 2)";
+        "stack(x, n)" = "ancestors(reachable(x, mutable()), n)";
+        "open()" = "stack(mine() | @, 1) ~ hidden()";
+        "ready()" = "open() ~ descendants(blacklist())";
+        "megamerge()" = "coalesce(present(megamerge), reachable(stack(), merges()))";
+        "uninteresting()" = "::remote_bookmarks() | tags():";
+        "interesting()" = "mine() ~ uninteresting()";
       };
       aliases = {
-        # Based on https://github.com/thoughtpolice/a/blob/canon/tilde/aseipp/dotfiles/jj/config.toml
+        nt = [
+          "new"
+          "trunk()"
+        ];
         cat = [
           "file"
           "show"
         ];
+        credit = [
+          "file"
+          "annotate"
+        ];
+        streamline = [ "simplify-parents" ];
         tug = [
           "bookmark"
           "move"
@@ -53,9 +70,6 @@
           "--to"
           "@-"
         ];
-        "stack()" = "stack(@)";
-        "stack(x)" = "stack(x, 2)";
-        "stack(x, n)" = "ancestors(reachable(x, mutable()), n)";
         open = [
           "log"
           "-r"
