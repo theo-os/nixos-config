@@ -51,8 +51,7 @@
   };
 
   fonts.packages = [
-    pkgs.monocraft
-    pkgs.miracode
+    pkgs.googlesans-code
     pkgs.noto-fonts
     pkgs.noto-fonts-color-emoji
   ];
@@ -92,7 +91,7 @@
         ];
         shell = pkgs.nushell;
         openssh.authorizedKeys.keys = [
-          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIE0xE9o3tB6RkWRwbQTq1afsJ5uqJCaFlvyi8RvYcZAO"
+          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMONqauyyiKgkkjn6PTWxRp5nrHeo3w9X9NZ7UbFjRsY"
         ];
       };
     };
@@ -138,6 +137,7 @@
     helix
     llama-cpp
     nix-output-monitor
+    delta
   ];
 
   services.mullvad-vpn.enable = true;
