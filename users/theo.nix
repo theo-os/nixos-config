@@ -16,6 +16,97 @@
         name = "Theo Paris";
         email = "theo@theoparis.com";
       };
+      ui = {
+        diff-formatter = "delta";
+      };
+      merge-tools = {
+        delta = {
+          diff-expected-exit-codes = [
+            0
+            1
+          ];
+        };
+      };
+      template-aliases = {
+        "ndjson(obj)" = "json(obj) ++ \"\n\"";
+        "ndjson" = "ndjson(self)";
+      };
+      revset-aliases = {
+        at = "@";
+        "user(x)" = "author(x) | committer(x)";
+        "immutable_heads()" = "present(trunk()) | untracked_remote_bookmarks() | tags()";
+        "wip()" = "description(glob-i:\"wip:*\") | description(glob-i:\"[[]WIP[]]*\")";
+        "private()" = "description(glob-i:\"private:*\") | description(glob-i:\"[[]PRIVATE[]]*\")";
+        "blacklist()" = "wip() | private()";
+      };
+      aliases = {
+        # Based on https://github.com/thoughtpolice/a/blob/canon/tilde/aseipp/dotfiles/jj/config.toml
+        cat = [
+          "file"
+          "show"
+        ];
+        tug = [
+          "bookmark"
+          "move"
+          "--from"
+          "heads(::@- & bookmarks())"
+          "--to"
+          "@-"
+        ];
+        "stack()" = "stack(@)";
+        "stack(x)" = "stack(x, 2)";
+        "stack(x, n)" = "ancestors(reachable(x, mutable()), n)";
+        open = [
+          "log"
+          "-r"
+          "open()"
+        ];
+        retrunk = [
+          "rebase"
+          "-d"
+          "trunk()"
+        ];
+        reheat = [
+          "rebase"
+          "-d"
+          "trunk()"
+          "-s"
+          "roots(trunk()..stack(@))"
+        ];
+        sandwich = [
+          "rebase"
+          "-B"
+          "megamerge()"
+          "-A"
+          "trunk()"
+          "-r"
+        ];
+        consume = [
+          "squash"
+          "--into"
+          "@"
+          "--from"
+        ];
+        eject = [
+          "squash"
+          "--from"
+          "@"
+          "--into"
+        ];
+        examine = [
+          "log"
+          "-T"
+          "builtin_log_detailed"
+          "-p"
+          "-r"
+        ];
+        jsonlog = [
+          "log"
+          "--no-graph"
+          "-T"
+          "ndjson"
+        ];
+      };
       gerrit = {
         default-remote = "gerrit";
         default-remote-branch = "main";
@@ -25,12 +116,26 @@
         backend = "ssh";
         key = "~/.ssh/id_ed25519.pub";
       };
+      merge-tools.difft = {
+        program = "difft";
+        diff-args = [
+          "--color=always"
+          "$left"
+          "$right"
+        ];
+        diff-invocation-mode = "file-by-file";
+      };
       git = {
+        write-change-id-header = true;
+        private-commits = "blacklist()";
         sign-on-push = true;
         fetch = [
           "upstream"
           "origin"
         ];
+      };
+      snapshot = {
+        auto-update-stale = true;
       };
       fsmonitor = {
         backend = "watchman";
@@ -44,17 +149,24 @@
     };
   };
 
-  programs.zsh.enable = true;
   home.packages = with pkgs; [
     starship
   ];
 
+  programs.alacritty = {
+    enable = true;
+    settings = {
+      font.size = 14.0;
+      font.normal.family = "Google Sans Code";
+    };
+  };
+
   programs.starship = {
     enable = true;
-    enableZshIntegration = true;
+    enableNushellIntegration = true;
   };
   programs.zoxide = {
     enable = true;
-    enableZshIntegration = true;
+    enableNushellIntegration = true;
   };
 }

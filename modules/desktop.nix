@@ -11,14 +11,12 @@
     wl-clipboard
     mako
     bemenu
-    rio
     ffmpeg
     blender
     legcord
     zed-editor
     mpv
     obs-studio
-    kdePackages.kdenlive
   ];
   programs.virt-manager.enable = true;
 
