@@ -20,7 +20,7 @@
   home-manager.users.theo = import ./users/theo.nix;
 
   boot.kernelParams = [ "net.ifnames=-1" ];
-  boot.kernelPackages = lib.mkDefault pkgs.linuxPackages_latest;
+  boot.kernelPackages = pkgs.linuxPackages_testing;
   hardware.enableRedistributableFirmware = true;
 
   virtualisation.libvirtd.enable = true;
@@ -109,6 +109,7 @@
   };
 
   environment.systemPackages = with pkgs; [
+    nushell
     dnsmasq
     bat
     brush
@@ -139,6 +140,8 @@
     llama-cpp
     nix-output-monitor
     delta
+    fastfetch
+    nh
   ];
 
   services.mullvad-vpn.enable = true;

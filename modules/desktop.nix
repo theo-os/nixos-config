@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ lib, pkgs, ... }:
 {
   imports = [
   ];
@@ -7,9 +7,8 @@
   hardware.bluetooth.enable = true;
   hardware.bluetooth.powerOnBoot = true;
   environment.systemPackages = with pkgs; [
-    firefox
-    wl-clipboard
-    mako
+    xclip
+    dunst
     bemenu
     ffmpeg
     blender
@@ -17,14 +16,27 @@
     zed-editor
     mpv
     obs-studio
+    antigravity
+    brave
   ];
+  nixpkgs.config.allowUnfreePredicate =
+    pkg:
+    builtins.elem (lib.getName pkg) [
+      "antigravity"
+    ];
+
   programs.virt-manager.enable = true;
+  programs.niri.enable = true;
 
   nixpkgs.overlays = [
     (final: previous: {
       mpv = previous.mpv.override {
         scripts = [ final.mpvScripts.mpv-discord ];
       };
+
+      # xorg = previous.xorg // {
+      #   xorgserver = final.xlibre-xserver;
+      # };
     })
   ];
 
@@ -36,8 +48,6 @@
       source = "${pkgs.ffmpeg}/bin/ffmpeg";
     };
   };
-
-  programs.niri.enable = true;
 
   services.kanata = {
     enable = true;

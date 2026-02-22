@@ -45,6 +45,8 @@
 
   networking.useDHCP = lib.mkDefault true;
 
-  nixpkgs.localSystem.system = "x86_64-linux";
+  nixpkgs.localSystem = {
+    system = "x86_64-linux";
+  };
   hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 }
