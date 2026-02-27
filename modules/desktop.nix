@@ -16,7 +16,6 @@
     zed-editor
     mpv
     obs-studio
-    antigravity
     brave
   ];
   nixpkgs.config.allowUnfreePredicate =

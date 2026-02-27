@@ -13,6 +13,7 @@
   nix.channel.enable = false;
   nixpkgs.overlays = [
     (import ./overlay)
+    inputs.llm-agents.overlays.default
   ];
 
   home-manager.useGlobalPkgs = true;
@@ -109,6 +110,8 @@
   };
 
   environment.systemPackages = with pkgs; [
+    llm-agents.codex
+    llm-agents.gemini-cli
     nushell
     dnsmasq
     bat
@@ -135,14 +138,19 @@
     wireguard-tools
     qemu
     watchman
-    gemini-cli-bin
     helix
     llama-cpp
     nix-output-monitor
     delta
     fastfetch
-    nh
+    tokei
   ];
+
+  programs.nh = {
+    enable = true;
+    clean.enable = true;
+    clean.extraArgs = "--keep-since 4d --keep 3";
+  };
 
   services.mullvad-vpn.enable = true;
 
@@ -154,11 +162,6 @@
 
   nix.optimise = {
     automatic = true;
-  };
-  nix.gc = {
-    automatic = true;
-    dates = "weekly";
-    options = "--delete-older-than 30d";
   };
 
   system.stateVersion = lib.mkDefault lib.trivial.release;
