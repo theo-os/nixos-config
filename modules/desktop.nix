@@ -13,7 +13,6 @@
     ffmpeg
     blender
     legcord
-    zed-editor
     mpv
     obs-studio
     brave

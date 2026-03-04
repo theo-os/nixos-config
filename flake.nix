@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     awww = {
       url = "git+https://codeberg.org/LGFae/awww";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -16,6 +16,11 @@
     llm-agents = {
       url = "github:numtide/llm-agents.nix";
       inputs.nixpkgs.follows = "nixpkgs";
+    };
+    # FIXME: wasmtime is borked: https://github.com/DeterminateSystems/nix-src/pull/333
+    determinate-nix = {
+      url = "github:DeterminateSystems/nix-src/2a57a000c3c849339d9b5c6239dba070040784e1";
+      inputs.nixpkgs-regression.follows = "nixpkgs";
     };
   };
 

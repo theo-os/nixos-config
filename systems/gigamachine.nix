@@ -1,5 +1,4 @@
 {
-  config,
   lib,
   ...
 }:
@@ -7,7 +6,7 @@
   imports = [
     ../modules/desktop.nix
   ];
-  nix.settings.max-jobs = 12;
+  nix.settings.max-jobs = 4;
 
   boot.initrd.availableKernelModules = [
     "ehci_pci"
@@ -18,22 +17,17 @@
     "sdhci_pci"
   ];
   boot.initrd.kernelModules = [ ];
-  boot.loader.grub.device = "nodev";
-  boot.loader.grub.efiSupport = true;
+  boot.loader.limine.efiSupport = true;
   boot.kernelModules = [ "kvm-amd" ];
   boot.extraModulePackages = [ ];
 
   fileSystems."/" = {
-    device = "/dev/disk/by-uuid/b9685104-b8bf-4bf7-9919-d161f56f484f";
+    device = "/dev/disk/by-uuid/726ab031-d1a6-405c-a6bd-6d399733a0b9";
     fsType = "bcachefs";
-    options = [
-      "compress=zstd:9"
-      "noatime"
-    ];
   };
 
   fileSystems."/boot" = {
-    device = "/dev/disk/by-uuid/977D-0452";
+    device = "/dev/disk/by-uuid/075A-E464";
     fsType = "vfat";
     options = [
       "fmask=0077"
@@ -45,8 +39,6 @@
 
   networking.useDHCP = lib.mkDefault true;
 
-  nixpkgs.localSystem = {
-    system = "x86_64-linux";
-  };
-  hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+  nixpkgs.hostPlatform.system = "x86_64-linux";
+  hardware.cpu.amd.updateMicrocode = true;
 }

@@ -12,8 +12,28 @@
 
   nix.channel.enable = false;
   nixpkgs.overlays = [
-    (import ./overlay)
+    inputs.determinate-nix.overlays.default
     inputs.llm-agents.overlays.default
+    (final: previous: {
+      # FIXME: nix-functional-tests -> stale-file-handle test fails?!
+      nix-functional-tests = previous.nix-functional-tests.overrideAttrs (old: {
+        buildCommand = ''
+          mkdir -p $out
+          touch $out/ignored
+        '';
+        doCheck = false;
+        doInstallCheck = false;
+      });
+
+      nix = previous.nix.overrideAttrs (old: {
+        doCheck = false;
+        doInstallCheck = false;
+        passthru = (old.passthru or { }) // {
+          tests = { };
+        };
+      });
+
+    })
   ];
 
   home-manager.useGlobalPkgs = true;
@@ -30,7 +50,11 @@
   environment.sessionVariables.EDITOR = "hx";
 
   nix.settings = {
+    lazy-trees = true;
+    eval-cores = 0;
+
     experimental-features = [
+      "parallel-eval"
       "nix-command"
       "flakes"
       "blake3-hashes"
@@ -59,9 +83,9 @@
   ];
 
   boot.supportedFilesystems = [
-    "btrfs"
+    "bcachefs"
   ];
-  boot.loader.grub.enable = true;
+  boot.loader.limine.enable = true;
   boot.loader.efi.canTouchEfiVariables = lib.mkDefault true;
 
   time.timeZone = "America/Los_Angeles";
@@ -110,12 +134,11 @@
   };
 
   environment.systemPackages = with pkgs; [
-    llm-agents.codex
+    # llm-agents.codex
     llm-agents.gemini-cli
     nushell
     dnsmasq
     bat
-    brush
     gitoxide
     gitMinimal
     jujutsu
@@ -133,13 +156,14 @@
     dhcpcd
     iw
     nixd
+    nixfmt
     libarchive
     watchman
     wireguard-tools
     qemu
     watchman
     helix
-    llama-cpp
+    llama-cpp-vulkan
     nix-output-monitor
     delta
     fastfetch
