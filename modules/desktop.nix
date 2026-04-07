@@ -16,6 +16,7 @@
     mpv
     obs-studio
     brave
+    zed-editor
   ];
   nixpkgs.config.allowUnfreePredicate =
     pkg:
@@ -23,7 +24,6 @@
       "antigravity"
     ];
 
-  programs.virt-manager.enable = true;
   programs.niri.enable = true;
 
   nixpkgs.overlays = [

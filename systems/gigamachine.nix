@@ -6,7 +6,7 @@
   imports = [
     ../modules/desktop.nix
   ];
-  nix.settings.max-jobs = 4;
+  nix.settings.max-jobs = 6;
 
   boot.initrd.availableKernelModules = [
     "ehci_pci"
@@ -22,12 +22,12 @@
   boot.extraModulePackages = [ ];
 
   fileSystems."/" = {
-    device = "/dev/disk/by-uuid/726ab031-d1a6-405c-a6bd-6d399733a0b9";
+    device = "/dev/disk/by-uuid/4d63831b-17f1-4d4d-9661-9a435e16bbd1";
     fsType = "bcachefs";
   };
 
   fileSystems."/boot" = {
-    device = "/dev/disk/by-uuid/075A-E464";
+    device = "/dev/disk/by-uuid/2827-1910";
     fsType = "vfat";
     options = [
       "fmask=0077"

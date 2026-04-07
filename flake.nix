@@ -13,15 +13,11 @@
       url = "github:hercules-ci/flake-parts";
       inputs.nixpkgs-lib.follows = "nixpkgs";
     };
-    llm-agents = {
-      url = "github:numtide/llm-agents.nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     # FIXME: wasmtime is borked: https://github.com/DeterminateSystems/nix-src/pull/333
-    determinate-nix = {
-      url = "github:DeterminateSystems/nix-src/2a57a000c3c849339d9b5c6239dba070040784e1";
-      inputs.nixpkgs-regression.follows = "nixpkgs";
-    };
+    # determinate-nix = {
+    #   url = "github:DeterminateSystems/nix-src/2a57a000c3c849339d9b5c6239dba070040784e1";
+    #   inputs.nixpkgs-regression.follows = "nixpkgs";
+    # };
   };
 
   outputs =

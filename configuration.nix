@@ -12,49 +12,32 @@
 
   nix.channel.enable = false;
   nixpkgs.overlays = [
-    inputs.determinate-nix.overlays.default
-    inputs.llm-agents.overlays.default
-    (final: previous: {
-      # FIXME: nix-functional-tests -> stale-file-handle test fails?!
-      nix-functional-tests = previous.nix-functional-tests.overrideAttrs (old: {
-        buildCommand = ''
-          mkdir -p $out
-          touch $out/ignored
-        '';
-        doCheck = false;
-        doInstallCheck = false;
-      });
-
-      nix = previous.nix.overrideAttrs (old: {
-        doCheck = false;
-        doInstallCheck = false;
-        passthru = (old.passthru or { }) // {
-          tests = { };
-        };
-      });
-
-    })
+    # inputs.determinate-nix.overlays.default
   ];
+  nixpkgs.config.problems.handlers = {
+    bcachefs.broken = "ignore";
+  };
 
   home-manager.useGlobalPkgs = true;
   home-manager.useUserPackages = true;
   home-manager.users.theo = import ./users/theo.nix;
 
+  # buck2 moment
+  systemd.services."user@".serviceConfig.Delegate = "memory pids cpu cpuset";
+
   boot.kernelParams = [ "net.ifnames=-1" ];
   boot.kernelPackages = pkgs.linuxPackages_testing;
   hardware.enableRedistributableFirmware = true;
-
-  virtualisation.libvirtd.enable = true;
 
   environment.sessionVariables.NIXOS_OZONE_WL = "1";
   environment.sessionVariables.EDITOR = "hx";
 
   nix.settings = {
-    lazy-trees = true;
-    eval-cores = 0;
+    # lazy-trees = true;
+    # eval-cores = 0;
 
     experimental-features = [
-      "parallel-eval"
+      # "parallel-eval"
       "nix-command"
       "flakes"
       "blake3-hashes"
@@ -113,7 +96,6 @@
           "wheel"
           "kvm"
           "adbusers"
-          "libvirtd"
         ];
         shell = pkgs.nushell;
         openssh.authorizedKeys.keys = [
@@ -134,8 +116,6 @@
   };
 
   environment.systemPackages = with pkgs; [
-    # llm-agents.codex
-    llm-agents.gemini-cli
     nushell
     dnsmasq
     bat
@@ -173,7 +153,7 @@
   programs.nh = {
     enable = true;
     clean.enable = true;
-    clean.extraArgs = "--keep-since 4d --keep 3";
+    clean.extraArgs = "--keep-since 7d --keep 3";
   };
 
   services.mullvad-vpn.enable = true;
@@ -181,7 +161,7 @@
   zramSwap = {
     enable = true;
     memoryPercent = 75;
-    algorithm = "zstd";
+    algorithm = "lz4";
   };
 
   nix.optimise = {
