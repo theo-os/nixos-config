@@ -15,14 +15,12 @@
     legcord
     mpv
     obs-studio
-    brave
+    chromium
+    brightnessctl
+    pulsemixer
     zed-editor
+    vulkan-tools
   ];
-  nixpkgs.config.allowUnfreePredicate =
-    pkg:
-    builtins.elem (lib.getName pkg) [
-      "antigravity"
-    ];
 
   programs.niri.enable = true;
 

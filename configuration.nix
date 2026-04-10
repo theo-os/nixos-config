@@ -8,11 +8,12 @@
   imports = [
     inputs.home-manager.nixosModules.home-manager
     ./modules/networking.nix
+    ./modules/neovim.nix
   ];
 
   nix.channel.enable = false;
   nixpkgs.overlays = [
-    # inputs.determinate-nix.overlays.default
+    inputs.determinate-nix.overlays.default
   ];
   nixpkgs.config.problems.handlers = {
     bcachefs.broken = "ignore";
@@ -21,6 +22,8 @@
   home-manager.useGlobalPkgs = true;
   home-manager.useUserPackages = true;
   home-manager.users.theo = import ./users/theo.nix;
+
+  nixpkgs.config.allowUnfree = true;
 
   # buck2 moment
   systemd.services."user@".serviceConfig.Delegate = "memory pids cpu cpuset";
@@ -33,11 +36,11 @@
   environment.sessionVariables.EDITOR = "hx";
 
   nix.settings = {
-    # lazy-trees = true;
-    # eval-cores = 0;
+    lazy-trees = true;
+    eval-cores = 0;
 
     experimental-features = [
-      # "parallel-eval"
+      "parallel-eval"
       "nix-command"
       "flakes"
       "blake3-hashes"
@@ -59,17 +62,20 @@
     ];
   };
 
-  fonts.packages = [
-    pkgs.googlesans-code
-    pkgs.noto-fonts
-    pkgs.noto-fonts-color-emoji
+  fonts.packages = with pkgs; [
+    nerd-fonts.fira-code
+    noto-fonts
+    noto-fonts-color-emoji
   ];
 
   boot.supportedFilesystems = [
     "bcachefs"
+    "xfs"
   ];
   boot.loader.limine.enable = true;
   boot.loader.efi.canTouchEfiVariables = lib.mkDefault true;
+
+  virtualisation.libvirtd.enable = true;
 
   time.timeZone = "America/Los_Angeles";
 
@@ -92,10 +98,13 @@
         isNormalUser = true;
         description = "Theo";
         extraGroups = [
+          "libvirtd"
           "networkmanager"
           "wheel"
           "kvm"
           "adbusers"
+          "dialout"
+          "uucp"
         ];
         shell = pkgs.nushell;
         openssh.authorizedKeys.keys = [
@@ -142,12 +151,12 @@
     wireguard-tools
     qemu
     watchman
-    helix
     llama-cpp-vulkan
     nix-output-monitor
     delta
     fastfetch
     tokei
+    claude-code-bin
   ];
 
   programs.nh = {
@@ -155,8 +164,6 @@
     clean.enable = true;
     clean.extraArgs = "--keep-since 7d --keep 3";
   };
-
-  services.mullvad-vpn.enable = true;
 
   zramSwap = {
     enable = true;

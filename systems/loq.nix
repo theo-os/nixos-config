@@ -6,22 +6,23 @@
 {
   imports = [
     ../modules/desktop.nix
+    # ../modules/llvm.nix
   ];
-  nix.settings.max-jobs = 6;
-  # FIXME: zed has issues with niri: https://github.com/YaLTeR/niri/issues/2335
-  # nixpkgs.config.allowUnfreePredicate =
-  #   pkg:
-  #   builtins.elem (lib.getName pkg) [
-  #     "nvidia-x11"
-  #     "nvidia-settings"
-  #   ];
-  # hardware.nvidia = {
-  #   open = true;
-  #   modesetting.enable = true;
-  #   powerManagement.enable = true;
-  #   package = config.boot.kernelPackages.nvidiaPackages.production;
-  # };
-  # services.xserver.videoDrivers = [ "nvidia" ];
+
+  nix.settings.max-jobs = 2;
+  nixpkgs.config.allowUnfreePredicate =
+    pkg:
+    builtins.elem (lib.getName pkg) [
+      "nvidia-x11"
+      "nvidia-settings"
+    ];
+  hardware.nvidia = {
+    open = true;
+    modesetting.enable = true;
+    powerManagement.enable = true;
+    package = config.boot.kernelPackages.nvidiaPackages.production;
+  };
+  services.xserver.videoDrivers = [ "nvidia" ];
 
   boot.initrd.availableKernelModules = [
     "ehci_pci"
@@ -32,8 +33,7 @@
     "sdhci_pci"
   ];
   boot.initrd.kernelModules = [ ];
-  boot.loader.grub.device = "nodev";
-  boot.loader.grub.efiSupport = true;
+  boot.loader.limine.efiSupport = true;
   boot.kernelModules = [ "kvm-intel" ];
   boot.extraModulePackages = [ ];
   boot.kernelParams = [
@@ -41,16 +41,12 @@
   ];
 
   fileSystems."/" = {
-    device = "/dev/disk/by-uuid/a36f0b52-c13b-4587-8ecf-b20e0b60f29a";
-    fsType = "btrfs";
-    options = [
-      "compress=zstd:6"
-      "noatime"
-    ];
+    device = "/dev/disk/by-uuid/1f5000aa-40da-4477-9903-c801348fd1c9";
+    fsType = "xfs";
   };
 
   fileSystems."/boot" = {
-    device = "/dev/disk/by-uuid/551C-5CEC";
+    device = "/dev/disk/by-uuid/E7E7-BBD7";
     fsType = "vfat";
     options = [
       "fmask=0077"
@@ -62,6 +58,6 @@
 
   networking.useDHCP = lib.mkDefault true;
 
-  nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
-  hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+  hardware.cpu.intel.updateMicrocode = true;
+  nixpkgs.hostPlatform.system = "x86_64-linux";
 }

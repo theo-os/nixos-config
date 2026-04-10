@@ -171,7 +171,7 @@
     enable = true;
     settings = {
       font.size = 14.0;
-      font.normal.family = "Google Sans Code";
+      font.normal.family = "FiraCode Nerd Font";
     };
   };
 

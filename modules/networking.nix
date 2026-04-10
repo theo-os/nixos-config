@@ -4,7 +4,7 @@
     hostName = "nixos";
     networkmanager.enable = true;
     networkmanager.wifi.powersave = false;
-    firewall.enable = true;
+    firewall.enable = false;
     firewall.allowedTCPPorts = [
       22
       80
