@@ -7,22 +7,55 @@
   hardware.bluetooth.enable = true;
   hardware.bluetooth.powerOnBoot = true;
   environment.systemPackages = with pkgs; [
-    xclip
-    dunst
     bemenu
+    kitty
     ffmpeg
     blender
-    legcord
+    equibop
     mpv
     obs-studio
-    chromium
+    firefox
     brightnessctl
     pulsemixer
-    zed-editor
     vulkan-tools
+    zed-editor
   ];
 
   programs.niri.enable = true;
+  services.greetd = {
+    enable = true;
+    settings = {
+      default_session = {
+        command = "${pkgs.tuigreet}/bin/tuigreet --time --remember --cmd niri-session";
+        user = "greeter";
+      };
+    };
+  };
+  xdg.portal = {
+    enable = true;
+    xdgOpenUsePortal = true;
+    extraPortals = [
+      pkgs.xdg-desktop-portal-gnome
+      pkgs.xdg-desktop-portal-gtk
+    ];
+    config = {
+      common = {
+        default = [
+          "gnome"
+          "gtk"
+        ];
+      };
+      # Explicitly map Niri's desktop string
+      niri = {
+        default = [
+          "gnome"
+          "gtk"
+        ];
+        "org.freedesktop.impl.portal.ScreenCast" = [ "gnome" ];
+        "org.freedesktop.impl.portal.Screenshot" = [ "gnome" ];
+      };
+    };
+  };
 
   nixpkgs.overlays = [
     (final: previous: {

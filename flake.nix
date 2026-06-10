@@ -18,7 +18,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     determinate-nix = {
-      url = "github:tinted-software/nix-src";
+      url = "github:DeterminateSystems/nix-src";
+      inputs.nixpkgs.follows = "nixpkgs";
       inputs.nixpkgs-regression.follows = "nixpkgs";
     };
   };

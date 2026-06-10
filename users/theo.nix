@@ -18,7 +18,7 @@
         email = "theo@theoparis.com";
       };
       ui = {
-        diff-formatter = "delta";
+        diff-formatter = "difft";
       };
       merge-tools = {
         delta = {
@@ -150,9 +150,6 @@
       };
       snapshot = {
         auto-update-stale = true;
-      };
-      fsmonitor = {
-        backend = "watchman";
       };
       templates = {
         commit_trailers = ''

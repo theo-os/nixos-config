@@ -8,7 +8,6 @@
   imports = [
     inputs.home-manager.nixosModules.home-manager
     ./modules/networking.nix
-    ./modules/neovim.nix
   ];
 
   nix.channel.enable = false;
@@ -29,11 +28,14 @@
   systemd.services."user@".serviceConfig.Delegate = "memory pids cpu cpuset";
 
   boot.kernelParams = [ "net.ifnames=-1" ];
-  boot.kernelPackages = pkgs.linuxPackages_testing;
+  boot.kernelPackages = pkgs.linuxPackages_latest;
   hardware.enableRedistributableFirmware = true;
 
-  environment.sessionVariables.NIXOS_OZONE_WL = "1";
-  environment.sessionVariables.EDITOR = "hx";
+  environment.sessionVariables = {
+    NIXOS_OZONE_WL = "1";
+    EDITOR = "hx";
+    ELECTRON_OZONE_PLATFORM_HINT = "wayland";
+  };
 
   nix.settings = {
     lazy-trees = true;
@@ -63,14 +65,15 @@
   };
 
   fonts.packages = with pkgs; [
-    nerd-fonts.fira-code
+    monocraft
+    miracode
     noto-fonts
     noto-fonts-color-emoji
   ];
 
   boot.supportedFilesystems = [
     "bcachefs"
-    "xfs"
+    "f2fs"
   ];
   boot.loader.limine.enable = true;
   boot.loader.efi.canTouchEfiVariables = lib.mkDefault true;
@@ -133,13 +136,13 @@
     jujutsu
     uutils-coreutils-noprefix
     ripgrep
+    helix
+    zellij
     skim
     sd
     fd
     hyperfine
     starship
-    zoxide
-    zellij
     btop
     wpa_supplicant
     dhcpcd
@@ -147,23 +150,14 @@
     nixd
     nixfmt
     libarchive
-    watchman
     wireguard-tools
     qemu
-    watchman
     llama-cpp-vulkan
-    nix-output-monitor
-    delta
+    difftastic
     fastfetch
     tokei
-    claude-code-bin
+    pi-coding-agent
   ];
-
-  programs.nh = {
-    enable = true;
-    clean.enable = true;
-    clean.extraArgs = "--keep-since 7d --keep 3";
-  };
 
   zramSwap = {
     enable = true;

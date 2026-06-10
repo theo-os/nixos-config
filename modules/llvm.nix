@@ -1,14 +1,16 @@
 {
   config,
   ...
-}: {
+}:
+{
   # nixpkgs.hostPlatform = {
   #   system = "x86_64-linux";
   #   useLLVM = true;
   #   linker = "lld";
   # };
 
-  nixpkgs.config.replaceStdenv = { pkgs }: 
+  nixpkgs.config.replaceStdenv =
+    { pkgs }:
     pkgs.useWildLinker pkgs.stdenv;
 
   nixpkgs.overlays = [
