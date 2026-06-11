@@ -156,6 +156,7 @@
           format_signed_off_by_trailer(self)
           ++ if(!trailers.contains_key("Change-Id"), format_gerrit_change_id_trailer(self))
         '';
+        git_push_bookmark = ''"theoparis/" ++ stringify(truncate_end(32, description.first_line().lower())).replace(regex:"[^a-zA-Z0-9]+", "-").replace(regex:"^-.*", "").replace(regex:"-*$", "") ++ "-" ++ change_id.short()'';
       };
     };
   };
