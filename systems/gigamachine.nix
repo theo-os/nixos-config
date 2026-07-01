@@ -25,12 +25,12 @@
   boot.extraModulePackages = [ ];
 
   fileSystems."/" = {
-    device = "/dev/disk/by-uuid/0af4c152-b8ef-4ae9-93b4-6e64536c7119";
+    device = "/dev/disk/by-uuid/1e3a3e1c-c37e-455a-8c7c-1a77fd09aae2";
     fsType = "f2fs";
     options = [
       "defaults"
-      "compress_algorithm=zstd:6"
-      "compress_chksum" # Verifies compressed block integrity
+      # "compress_algorithm=zstd:6"
+      # "compress_chksum" # Verifies compressed block integrity
       "atgc" # Enables advanced adaptive garbage collection
       "gc_merge" # Asynchronous foreground garbage collection
       "lazytime" # Optimizes IO writes for timestamps
@@ -38,7 +38,7 @@
   };
 
   fileSystems."/boot" = {
-    device = "/dev/disk/by-uuid/0437-4661";
+    device = "/dev/disk/by-uuid/9D3E-B8E3";
     fsType = "vfat";
     options = [
       "fmask=0077"

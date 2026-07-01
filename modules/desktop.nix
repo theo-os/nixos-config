@@ -13,6 +13,7 @@
     blender
     equibop
     mpv
+    yt-dlp
     obs-studio
     firefox
     brightnessctl
@@ -59,6 +60,10 @@
 
   nixpkgs.overlays = [
     (final: previous: {
+      yt-dlp = previous.yt-dlp.override {
+        jsRuntime = previous.quickjs-ng;
+      };
+
       mpv = previous.mpv.override {
         scripts = [ final.mpvScripts.mpv-discord ];
       };

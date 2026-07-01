@@ -156,7 +156,7 @@
     difftastic
     fastfetch
     tokei
-    pi-coding-agent
+    codex
   ];
 
   zramSwap = {
