@@ -14,13 +14,23 @@
     pkg:
     builtins.elem (lib.getName pkg) [
       "nvidia-x11"
-      "nvidia-settings"
     ];
   hardware.nvidia = {
     open = true;
     modesetting.enable = true;
-    powerManagement.enable = true;
+    powerManagement.enable = false;
+    powerManagement.finegrained = true;
+    nvidiaSettings = false;
     package = config.boot.kernelPackages.nvidiaPackages.production;
+    prime = {
+      offload = {
+        enable = true;
+        enableOffloadCmd = true;
+      };
+
+      intelBusId = "PCI:0:2:0";
+      nvidiaBusId = "PCI:1:0:0";
+    };
   };
   services.xserver.videoDrivers = [ "nvidia" ];
 
@@ -41,12 +51,16 @@
   ];
 
   fileSystems."/" = {
-    device = "/dev/disk/by-uuid/1f5000aa-40da-4477-9903-c801348fd1c9";
-    fsType = "xfs";
+    device = "/dev/disk/by-uuid/05c926f7-55eb-445c-b585-84abe3b0b1c2";
+    fsType = "btrfs";
+    options = [
+      "compress=zstd:3"
+      "noatime"
+    ];
   };
 
   fileSystems."/boot" = {
-    device = "/dev/disk/by-uuid/E7E7-BBD7";
+    device = "/dev/disk/by-uuid/E1DB-54BE";
     fsType = "vfat";
     options = [
       "fmask=0077"

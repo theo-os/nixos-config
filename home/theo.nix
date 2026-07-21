@@ -1,4 +1,6 @@
 {
+  inputs,
+  config,
   lib,
   pkgs,
   ...
@@ -8,6 +10,34 @@
   home.username = "theo";
   home.homeDirectory = "/home/theo";
   home.stateVersion = lib.trivial.release;
+
+  services.kanshi = {
+    enable = true;
+    settings = [
+      {
+        profile.name = "undocked";
+        profile.outputs = [
+          {
+            criteria = "eDP-1";
+            status = "enable";
+          }
+        ];
+      }
+      {
+        profile.name = "docked";
+        profile.outputs = [
+          {
+            criteria = "eDP-1";
+            status = "disable";
+          }
+          {
+            criteria = "HDMI-A-1";
+            status = "enable";
+          }
+        ];
+      }
+    ];
+  };
 
   # Based on https://github.com/thoughtpolice/a/blob/canon/tilde/aseipp/dotfiles/jj/config.toml
   programs.jujutsu = {
@@ -163,15 +193,25 @@
 
   home.packages = with pkgs; [
     starship
+    (symlinkJoin {
+      name = "pi-wrapped";
+      paths = [ inputs.nixpkgs-master.legacyPackages.${stdenv.hostPlatform.system}.pi-coding-agent ]; # Or whatever flake package you use
+      buildInputs = [ makeWrapper ];
+      postBuild = ''
+        wrapProgram $out/bin/pi \
+          --set NPM_CONFIG_PREFIX "${config.home.homeDirectory}/.pi/npm/" \
+          --prefix PATH : ${lib.makeBinPath [ nodejs_latest ]}
+      '';
+    })
   ];
 
-  programs.alacritty = {
-    enable = true;
-    settings = {
-      font.size = 14.0;
-      font.normal.family = "FiraCode Nerd Font";
-    };
-  };
+  # programs.alacritty = {
+  #   enable = true;
+  #   settings = {
+  #     font.size = 14.0;
+  #     font.normal.family = "FiraCode Nerd Font";
+  #   };
+  # };
 
   programs.starship = {
     enable = true;

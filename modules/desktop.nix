@@ -3,6 +3,23 @@
   imports = [
   ];
 
+  services.logind = {
+    settings.Login.HandleLidSwitchDocked = "ignore";
+    settings.Login.HandleLidSwitch = "ignore";
+  };
+
+  programs.steam = {
+    enable = true;
+  };
+
+  nixpkgs.config.allowUnfreePredicate =
+    pkg:
+    builtins.elem (lib.getName pkg) [
+      "steam"
+      "steam-unwrapped"
+    ];
+  programs.gamemode.enable = true;
+
   hardware.graphics.enable = true;
   hardware.bluetooth.enable = true;
   hardware.bluetooth.powerOnBoot = true;
@@ -19,44 +36,20 @@
     brightnessctl
     pulsemixer
     vulkan-tools
-    zed-editor
+    xclip
+    xhost
   ];
 
-  programs.niri.enable = true;
-  services.greetd = {
+  services.xserver = {
     enable = true;
-    settings = {
-      default_session = {
-        command = "${pkgs.tuigreet}/bin/tuigreet --time --remember --cmd niri-session";
-        user = "greeter";
-      };
+    desktopManager = {
+      xterm.enable = false;
+      xfce.enable = true;
     };
+    displayManager.lightdm.enable = true;
+    displayManager.lightdm.greeter.enable = true;
   };
-  xdg.portal = {
-    enable = true;
-    xdgOpenUsePortal = true;
-    extraPortals = [
-      pkgs.xdg-desktop-portal-gnome
-      pkgs.xdg-desktop-portal-gtk
-    ];
-    config = {
-      common = {
-        default = [
-          "gnome"
-          "gtk"
-        ];
-      };
-      # Explicitly map Niri's desktop string
-      niri = {
-        default = [
-          "gnome"
-          "gtk"
-        ];
-        "org.freedesktop.impl.portal.ScreenCast" = [ "gnome" ];
-        "org.freedesktop.impl.portal.Screenshot" = [ "gnome" ];
-      };
-    };
-  };
+  services.displayManager.defaultSession = "xfce";
 
   nixpkgs.overlays = [
     (final: previous: {
@@ -96,7 +89,7 @@
     alsa.enable = true;
     pulse.enable = true;
     wireplumber.enable = true;
-    alsa.support32Bit = false;
+    alsa.support32Bit = true;
     jack.enable = false;
   };
 
